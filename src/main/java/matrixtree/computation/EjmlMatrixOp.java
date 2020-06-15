@@ -1,18 +1,18 @@
-package hazeltree.computation;
+package matrixtree.computation;
 
 import java.util.Collection;
 
 import org.ejml.simple.SimpleMatrix;
 
-import hazeltree.matrices.BaseMatrix;
-import hazeltree.matrices.HazelMatrix;
+import matrixtree.matrices.BaseMatrix;
+import matrixtree.matrices.TreeMatrix;
 
 public class EjmlMatrixOp implements MatrixOp {
 
 	@Override
-	public HazelMatrix multiply(Collection<HazelMatrix>  matrices) {
+	public TreeMatrix multiply(Collection<TreeMatrix>  matrices) {
 		SimpleMatrix res = null;
-		for (HazelMatrix mat : matrices) {
+		for (TreeMatrix mat : matrices) {
 			SimpleMatrix smat = new SimpleMatrix(mat.asDouble());
 			if (res == null)
 				res = smat;
@@ -27,14 +27,14 @@ public class EjmlMatrixOp implements MatrixOp {
 	}
 
 	@Override
-	public HazelMatrix multiply(HazelMatrix matA, HazelMatrix matB) {
+	public TreeMatrix multiply(TreeMatrix matA, TreeMatrix matB) {
 		SimpleMatrix a = new SimpleMatrix(matA.asDouble());
 		SimpleMatrix b = new SimpleMatrix(matB.asDouble());
 		
 		return convert(a.mult(b));
 	}
 
-	private HazelMatrix convert(SimpleMatrix mat) {
+	private TreeMatrix convert(SimpleMatrix mat) {
 		return new BaseMatrix(mat.get(0, 0), mat.get(0, 1), //
 				mat.get(1, 0), mat.get(1, 1));
 	}

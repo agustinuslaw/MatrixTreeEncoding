@@ -1,7 +1,7 @@
-package hazeltree.matrices;
+package matrixtree.matrices;
 
 /**
- * Hazel algorithm only requires 2x2 matrices.
+ * Tree encoding algorithm only requires 2x2 matrices.
  * <p>
  * a11(a) a12(b) <br>
  * a21(c) a22(d) <br>
@@ -9,7 +9,7 @@ package hazeltree.matrices;
  * @author agustinus lawandy
  *
  */
-public class BaseMatrix implements HazelMatrix {
+public class BaseMatrix implements TreeMatrix {
 
 	/** a11 : Numerator */
 	private final long e11;
@@ -52,7 +52,7 @@ public class BaseMatrix implements HazelMatrix {
 		this.e22 = a22;
 	}
 
-	public BaseMatrix(HazelMatrix other) {
+	public BaseMatrix(TreeMatrix other) {
 		super();
 		this.e11 = other.getE11();
 		this.e12 = other.getE12();
@@ -119,7 +119,7 @@ public class BaseMatrix implements HazelMatrix {
 
 	@Override
 	public String toString() {
-		return "BaseMatrix [e11=" + e11 + ", e12=" + e12 + ", e21=" + e21 + ", e22=" + e22 + "]";
+		return getClass().getSimpleName() + "{{" + e11 + "," + e12 + "},{" + e21 + "," + e22 + "}}";
 	}
 
 }

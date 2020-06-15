@@ -1,17 +1,18 @@
-package hazeltree.computation;
+package matrixtree.computation;
 
 import java.util.Collection;
 
-import hazeltree.matrices.BaseMatrix;
-import hazeltree.matrices.HazelMatrix;
+import matrixtree.matrices.BaseMatrix;
+import matrixtree.matrices.TreeMatrix;
 
-public class SimpleMatrixOp implements MatrixOp {
+public class ExactMatrixOp implements MatrixOp {
 
 	@Override
-	public HazelMatrix multiply(HazelMatrix matA, HazelMatrix matB) {
+	public TreeMatrix multiply(TreeMatrix matA, TreeMatrix matB) {
 		long[][] a = matA.asLong();
 		long[][] b = matB.asLong();
 
+		// Exact calculation using only integer arithmetics
 		long e11 = a[0][0] * b[0][0] + a[0][1] * b[1][0];
 		long e12 = a[0][0] * b[0][1] + a[0][1] * b[1][1];
 		long e21 = a[1][0] * b[0][0] + a[1][1] * b[1][0];
@@ -21,9 +22,9 @@ public class SimpleMatrixOp implements MatrixOp {
 	}
 
 	@Override
-	public HazelMatrix multiply(Collection<HazelMatrix> matrices) {
-		HazelMatrix res = null;
-		for (HazelMatrix mat : matrices) 
+	public TreeMatrix multiply(Collection<TreeMatrix> matrices) {
+		TreeMatrix res = null;
+		for (TreeMatrix mat : matrices) 
 			if (res == null)
 				res = mat;
 			else

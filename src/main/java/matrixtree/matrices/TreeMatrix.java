@@ -1,12 +1,12 @@
-package hazeltree.matrices;
+package matrixtree.matrices;
 
 /**
- * Represent 2x2 matrix required for the encoding.
+ * Represent 2x2 matrix required for the tree encoding.
  * 
  * @author agustinus lawandy
  *
  */
-public interface HazelMatrix {
+public interface TreeMatrix {
 
 	public long getE11();
 
@@ -21,4 +21,5 @@ public interface HazelMatrix {
 	long[][] asLong();
 
 	long determinant();
+	
 }

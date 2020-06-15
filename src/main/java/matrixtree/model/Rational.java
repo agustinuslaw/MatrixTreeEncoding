@@ -1,4 +1,4 @@
-package hazeltree.model;
+package matrixtree.model;
 
 import java.io.Serializable;
 import java.math.BigInteger;

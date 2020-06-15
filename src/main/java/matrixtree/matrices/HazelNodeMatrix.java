@@ -1,18 +1,18 @@
-package hazeltree.matrices;
+package matrixtree.matrices;
 
-import hazeltree.exception.BadArgumentException;
+import matrixtree.exception.BadArgumentException;
 
 /**
- * Represent a single node in the Hazel Encoding. Matrix form {{1,1},{c,c+1}}
- * where c is node.
+ * Represent a single node in the Hazel Encoding. <br>
+ * Matrix form is {{1,1},{c,c+1}} where c is node.
  * 
  * @author agustinus lawandy
  *
  */
-public class NodeMatrix extends BaseMatrix implements HazelMatrix, SimpleInvertible {
+public class HazelNodeMatrix extends BaseMatrix implements TreeMatrix, SimpleInvertible {
 
-	public NodeMatrix(long node) throws BadArgumentException {
-		super(1,1,node,node+1);
+	public HazelNodeMatrix(long node) throws BadArgumentException {
+		super(1, 1, node, node + 1);
 
 		// Node has to be in [1, inf)
 		if (node <= 0)
@@ -31,7 +31,7 @@ public class NodeMatrix extends BaseMatrix implements HazelMatrix, SimpleInverti
 	}
 
 	@Override
-	public HazelMatrix invert() {
+	public TreeMatrix invert() {
 		// remember the determinant is 1
 		// d(a22) -b(a12) -c(a21) a(a11)
 		return new BaseMatrix(getE22(), -getE12(), -getE21(), getE11());

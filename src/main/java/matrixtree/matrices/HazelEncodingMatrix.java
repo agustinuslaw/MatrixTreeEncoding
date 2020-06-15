@@ -1,15 +1,15 @@
-package hazeltree.matrices;
+package matrixtree.matrices;
 
-import hazeltree.model.Rational;
+import matrixtree.model.Rational;
 
-public class EncodingMatrix extends BaseMatrix implements SimpleInvertible {
+public class HazelEncodingMatrix extends BaseMatrix implements EncodingMatrix, TreeMatrix, SimpleInvertible {
 
-	public EncodingMatrix(long num, long den, long snum, long sden) {
+	public HazelEncodingMatrix(long num, long den, long snum, long sden) {
 		// a11, a12, a21, a22
 		super(num, snum, den, sden);
 	}
 
-	public EncodingMatrix(HazelMatrix other) {
+	public HazelEncodingMatrix(TreeMatrix other) {
 		super(other);
 	}
 
@@ -56,9 +56,10 @@ public class EncodingMatrix extends BaseMatrix implements SimpleInvertible {
 	}
 
 	@Override
-	public HazelMatrix invert() {
+	public TreeMatrix invert() {
 		// remember det = -1
 		// inv = -d(a22) b(a12) c(a21) -a(a11)
 		return new BaseMatrix(-getE22(), getE12(), getE21(), -getE11());
 	}
+
 }

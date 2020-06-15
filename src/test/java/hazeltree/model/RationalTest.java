@@ -4,6 +4,8 @@ import static org.junit.jupiter.api.Assertions.*;
 
 import org.junit.jupiter.api.Test;
 
+import matrixtree.model.Rational;
+
 class RationalTest {
 
 	@Test

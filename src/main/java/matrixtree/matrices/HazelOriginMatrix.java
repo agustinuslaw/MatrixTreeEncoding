@@ -1,4 +1,4 @@
-package hazeltree.matrices;
+package matrixtree.matrices;
 
 /**
  * Base matrix used for rational number calculation {{0,1},{1,0}}
@@ -6,9 +6,9 @@ package hazeltree.matrices;
  * @author agustinus lawandy
  *
  */
-public class OriginMatrix extends BaseMatrix implements HazelMatrix, SimpleInvertible {
+public class HazelOriginMatrix extends BaseMatrix implements TreeMatrix, SimpleInvertible {
 
-	public OriginMatrix() {
+	public HazelOriginMatrix() {
 		super(0, 1, 1, 0);
 	}
 
@@ -29,7 +29,7 @@ public class OriginMatrix extends BaseMatrix implements HazelMatrix, SimpleInver
 	 * @return itself
 	 */
 	@Override
-	public HazelMatrix invert() {
+	public TreeMatrix invert() {
 		return this;
 	}
 

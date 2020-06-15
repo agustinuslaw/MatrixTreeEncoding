@@ -1,4 +1,4 @@
-package hazeltree.exception;
+package matrixtree.exception;
 
 public class BadArgumentException extends RuntimeException {
 
