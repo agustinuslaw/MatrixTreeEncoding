@@ -1,12 +1,13 @@
 package matrixtree.matrices;
 
 /**
- * Base matrix used for rational number calculation {{0,1},{1,0}}
- * 
- * @author agustinus lawandy
+ * Hazel scheme specific Origin matrix O used for rational number calculation {{0,1},{1,0}}
+ * Notation is O, this matrix is unique.
+ *
+ * @author Agustinus Lawandy
  *
  */
-public class HazelOriginMatrix extends BaseMatrix implements TreeMatrix, SimpleInvertible {
+public class HazelOriginMatrix extends BaseMatrix implements StandardMatrix, SimpleInvertible {
 
 	public HazelOriginMatrix() {
 		super(0, 1, 1, 0);
@@ -29,7 +30,7 @@ public class HazelOriginMatrix extends BaseMatrix implements TreeMatrix, SimpleI
 	 * @return itself
 	 */
 	@Override
-	public TreeMatrix invert() {
+	public StandardMatrix invert() {
 		return this;
 	}
 

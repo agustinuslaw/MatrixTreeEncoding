@@ -3,12 +3,15 @@ package matrixtree.computation;
 import java.util.Collection;
 
 import matrixtree.matrices.BaseMatrix;
-import matrixtree.matrices.TreeMatrix;
+import matrixtree.matrices.StandardMatrix;
 
+/**
+ * @author Agustinus Lawandy
+ */
 public class ExactMatrixOp implements MatrixOp {
 
 	@Override
-	public TreeMatrix multiply(TreeMatrix matA, TreeMatrix matB) {
+	public StandardMatrix multiply(StandardMatrix matA, StandardMatrix matB) {
 		long[][] a = matA.asLong();
 		long[][] b = matB.asLong();
 
@@ -22,9 +25,9 @@ public class ExactMatrixOp implements MatrixOp {
 	}
 
 	@Override
-	public TreeMatrix multiply(Collection<TreeMatrix> matrices) {
-		TreeMatrix res = null;
-		for (TreeMatrix mat : matrices) 
+	public StandardMatrix multiply(Collection<StandardMatrix> matrices) {
+		StandardMatrix res = null;
+		for (StandardMatrix mat : matrices)
 			if (res == null)
 				res = mat;
 			else

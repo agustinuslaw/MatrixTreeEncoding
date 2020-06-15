@@ -2,11 +2,14 @@ package matrixtree.computation;
 
 import java.util.Collection;
 
-import matrixtree.matrices.TreeMatrix;
+import matrixtree.matrices.StandardMatrix;
 
+/**
+ * @author Agustinus Lawandy
+ */
 public interface MatrixOp {
 	
-	TreeMatrix multiply(TreeMatrix matA, TreeMatrix matB);
+	StandardMatrix multiply(StandardMatrix matA, StandardMatrix matB);
 	
-	TreeMatrix multiply(Collection<TreeMatrix> matrices);
+	StandardMatrix multiply(Collection<StandardMatrix> matrices);
 }

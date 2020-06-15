@@ -5,14 +5,17 @@ import java.util.Collection;
 import org.ejml.simple.SimpleMatrix;
 
 import matrixtree.matrices.BaseMatrix;
-import matrixtree.matrices.TreeMatrix;
+import matrixtree.matrices.StandardMatrix;
 
+/**
+ * @author Agustinus Lawandy
+ */
 public class EjmlMatrixOp implements MatrixOp {
 
 	@Override
-	public TreeMatrix multiply(Collection<TreeMatrix>  matrices) {
+	public StandardMatrix multiply(Collection<StandardMatrix>  matrices) {
 		SimpleMatrix res = null;
-		for (TreeMatrix mat : matrices) {
+		for (StandardMatrix mat : matrices) {
 			SimpleMatrix smat = new SimpleMatrix(mat.asDouble());
 			if (res == null)
 				res = smat;
@@ -27,14 +30,14 @@ public class EjmlMatrixOp implements MatrixOp {
 	}
 
 	@Override
-	public TreeMatrix multiply(TreeMatrix matA, TreeMatrix matB) {
+	public StandardMatrix multiply(StandardMatrix matA, StandardMatrix matB) {
 		SimpleMatrix a = new SimpleMatrix(matA.asDouble());
 		SimpleMatrix b = new SimpleMatrix(matB.asDouble());
 		
 		return convert(a.mult(b));
 	}
 
-	private TreeMatrix convert(SimpleMatrix mat) {
+	private StandardMatrix convert(SimpleMatrix mat) {
 		return new BaseMatrix(mat.get(0, 0), mat.get(0, 1), //
 				mat.get(1, 0), mat.get(1, 1));
 	}

@@ -1,5 +1,8 @@
 package matrixtree.exception;
 
+/**
+ * @author Agustinus Lawandy
+ */
 public class BadArgumentException extends RuntimeException {
 
 	private static final long serialVersionUID = 1L;

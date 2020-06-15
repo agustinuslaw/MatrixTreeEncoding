@@ -10,7 +10,7 @@
       </profile>
     </annotationProcessing>
     <bytecodeTargetLevel>
-      <module name="hazeltree" target="1.5" />
+      <module name="hazeltree" target="10" />
     </bytecodeTargetLevel>
   </component>
 </project>
