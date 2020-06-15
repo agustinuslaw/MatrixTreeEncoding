@@ -24,6 +24,8 @@
 hs_err_pid*
 
 # ---- ECLIPSE ----
+.project
+.classpath
 .metadata
 target/
 bin/
