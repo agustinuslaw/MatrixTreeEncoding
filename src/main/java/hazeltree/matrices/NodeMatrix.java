@@ -10,7 +10,6 @@ import hazeltree.exception.BadArgumentException;
  *
  */
 public class NodeMatrix extends BaseMatrix implements HazelMatrix, SimpleInvertible {
-	private final long node;
 
 	public NodeMatrix(long node) throws BadArgumentException {
 		super(1,1,node,node+1);
@@ -18,8 +17,6 @@ public class NodeMatrix extends BaseMatrix implements HazelMatrix, SimpleInverti
 		// Node has to be in [1, inf)
 		if (node <= 0)
 			throw new BadArgumentException("node", node, "[1,inf)");
-
-		this.node = node;
 	}
 
 	/**
@@ -37,6 +34,6 @@ public class NodeMatrix extends BaseMatrix implements HazelMatrix, SimpleInverti
 	public HazelMatrix invert() {
 		// remember the determinant is 1
 		// d(a22) -b(a12) -c(a21) a(a11)
-		return (HazelMatrix) new BaseMatrix(e22, e12, node, node);
+		return new BaseMatrix(getE22(), -getE12(), -getE21(), getE11());
 	}
 }

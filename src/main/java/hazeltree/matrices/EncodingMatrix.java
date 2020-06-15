@@ -9,20 +9,24 @@ public class EncodingMatrix extends BaseMatrix implements SimpleInvertible {
 		super(num, snum, den, sden);
 	}
 
+	public EncodingMatrix(HazelMatrix other) {
+		super(other);
+	}
+
 	public long getNumerator() {
-		return e11;
+		return getE11();
 	}
 
 	public long getDenominator() {
-		return e21;
+		return getE21();
 	}
 
 	public long getSiblingNumerator() {
-		return e12;
+		return getE12();
 	}
 
 	public long getSiblingDenominator() {
-		return e22;
+		return getE22();
 	}
 
 	public Rational getNodeEncoding() {
@@ -55,6 +59,6 @@ public class EncodingMatrix extends BaseMatrix implements SimpleInvertible {
 	public HazelMatrix invert() {
 		// remember det = -1
 		// inv = -d(a22) b(a12) c(a21) -a(a11)
-		return new BaseMatrix(-e22, e12, e21, -e11);
+		return new BaseMatrix(-getE22(), getE12(), getE21(), -getE11());
 	}
 }

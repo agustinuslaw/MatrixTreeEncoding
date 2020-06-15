@@ -8,7 +8,7 @@ package hazeltree.matrices;
  */
 public class OriginMatrix extends BaseMatrix implements HazelMatrix, SimpleInvertible {
 
-	public OriginMatrix(long a11, long a12, long a21, long a22) {
+	public OriginMatrix() {
 		super(0, 1, 1, 0);
 	}
 

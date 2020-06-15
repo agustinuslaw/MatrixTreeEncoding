@@ -8,6 +8,14 @@ package hazeltree.matrices;
  */
 public interface HazelMatrix {
 
+	public long getE11();
+
+	public long getE12();
+
+	public long getE21();
+
+	public long getE22();
+
 	double[][] asDouble();
 
 	long[][] asLong();

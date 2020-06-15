@@ -1,6 +1,6 @@
 package hazeltree.exception;
 
-public class BadArgumentException extends Exception {
+public class BadArgumentException extends RuntimeException {
 
 	private static final long serialVersionUID = 1L;
 	private static final String MSG = "Input variable %s (%s) is not contained in domain %s";

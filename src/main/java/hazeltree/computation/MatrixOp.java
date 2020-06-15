@@ -1,11 +1,12 @@
 package hazeltree.computation;
 
+import java.util.Collection;
+
 import hazeltree.matrices.HazelMatrix;
 
 public interface MatrixOp {
 	
 	HazelMatrix multiply(HazelMatrix matA, HazelMatrix matB);
 	
-	HazelMatrix multiply(HazelMatrix... matrices);
-	
+	HazelMatrix multiply(Collection<HazelMatrix> matrices);
 }
