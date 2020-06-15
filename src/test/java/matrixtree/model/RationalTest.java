@@ -1,4 +1,4 @@
-package hazeltree.model;
+package matrixtree.model;
 
 import static org.junit.jupiter.api.Assertions.*;
 

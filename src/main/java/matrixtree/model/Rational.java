@@ -237,6 +237,22 @@ public class Rational extends Number implements Comparable<Rational>, Serializab
 	}
 
 	/**
+	 * Mediant, the numerator and denominator are the sums of the numerators and
+	 * denominators of the given fractions. <br>
+	 * 
+	 * p = p_i + p_j <br>
+	 * q = q_i + q_j <br>
+	 * Q = p/q <br>
+	 * 
+	 * @param fraction
+	 * @return Q, the mediant of this fraction and that
+	 */
+	public Rational mediant(Rational fraction) {
+		return new Rational(numerator + fraction.getNumerator(), //
+				denominator + fraction.getDenominator());
+	}
+
+	/**
 	 * Add an integer to the fraction.
 	 * 
 	 * @param i the {@code integer} to add.

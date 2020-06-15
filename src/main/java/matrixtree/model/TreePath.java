@@ -20,4 +20,9 @@ public interface TreePath {
 	 */
 	EncodingMatrix getEncodingMatrix();
 
+	/**
+	 * @return
+	 */
+	TreePath getParentPath();
+
 }

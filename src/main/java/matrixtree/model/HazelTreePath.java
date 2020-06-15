@@ -40,11 +40,13 @@ public class HazelTreePath implements TreePath  {
 		return path;
 	}
 
+	@Override
 	public TreePath getParentPath() {
 		LinkedList<Long> nodes = new LinkedList<>(path);
 		
-		// Remove the last node, if empty it does nothing
-		nodes.pollLast();
+		if (nodes.size() > 1)
+			nodes.pollLast();
+		
 		return new HazelTreePath(nodes);
 	}
 	
