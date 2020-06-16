@@ -103,6 +103,26 @@ public class Rational extends Number implements Comparable<Rational>, Serializab
 		return (nOd < dOn) ? -1 : ((nOd > dOn) ? +1 : 0);
 	}
 
+	public boolean lessThan(Rational object)
+	{
+		return this.compareTo(object) == -1;
+	}
+
+	public boolean greaterThan(Rational object)
+	{
+		return this.compareTo(object) == 1;
+	}
+
+	public boolean lessOrEqualTo(Rational object)
+	{
+		return lessThan(object) || compareTo(object) == 0;
+	}
+
+	public boolean greaterOrEqualTo(Rational object)
+	{
+		return greaterThan(object) || compareTo(object) == 0;
+	}
+
 	/**
 	 * Gets the fraction as a {@code double}. This calculates the fraction as the
 	 * numerator divided by denominator.
@@ -244,7 +264,7 @@ public class Rational extends Number implements Comparable<Rational>, Serializab
 	 * q = q_i + q_j <br>
 	 * Q = p/q <br>
 	 * 
-	 * @param fraction
+	 * @param fraction to compute mediant with
 	 * @return Q, the mediant of this fraction and that
 	 */
 	public Rational mediant(Rational fraction) {
@@ -471,7 +491,7 @@ public class Rational extends Number implements Comparable<Rational>, Serializab
 	 */
 	@Override
 	public String toString() {
-		String str = null;
+		String str;
 		if (denominator == 1) {
 			str = Long.toString(numerator);
 		} else if (numerator == 0) {

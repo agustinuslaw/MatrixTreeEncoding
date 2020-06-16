@@ -1,11 +1,14 @@
 package matrixtree.computation;
 
 import java.util.Collection;
+import java.util.function.Supplier;
 
 import matrixtree.matrices.BaseMatrix;
 import matrixtree.matrices.StandardMatrix;
 
 /**
+ * Matrix operation based only on exact arithmetics.
+ *
  * @author Agustinus Lawandy
  */
 public class ExactMatrixOp implements MatrixOp {
@@ -26,6 +29,9 @@ public class ExactMatrixOp implements MatrixOp {
 
 	@Override
 	public StandardMatrix multiply(Collection<StandardMatrix> matrices) {
+		if (matrices.isEmpty())
+			throw new NullPointerException("Matrices should not be empty!");
+
 		StandardMatrix res = null;
 		for (StandardMatrix mat : matrices)
 			if (res == null)
@@ -33,10 +39,13 @@ public class ExactMatrixOp implements MatrixOp {
 			else
 				res = multiply(res, mat);
 
-		if (res == null)
-			throw new NullPointerException("Matrices should not be empty!");
-
 		return res;
 	}
+
+	@Override
+	public StandardMatrix transpose(StandardMatrix m) {
+		return new BaseMatrix(m.getE11(), m.getE21(), m.getE12(), m.getE22());
+	}
+
 
 }

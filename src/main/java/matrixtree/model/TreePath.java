@@ -20,7 +20,7 @@ public interface TreePath {
 	/**
 	 * @return the Path matrix P encoding of this path e.g. P[2.4.3]
 	 */
-	PathMatrix getPathMatrix();
+	PathMatrix computePathMatrix();
 
 	/**
 	 * @return the parent tree path e.g. T[2.4.3] -> T[2.4]

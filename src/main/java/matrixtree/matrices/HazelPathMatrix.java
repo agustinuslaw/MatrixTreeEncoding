@@ -1,6 +1,12 @@
 package matrixtree.matrices;
 
-import matrixtree.model.Rational;
+import matrixtree.computation.ExactMatrixOp;
+import matrixtree.computation.MatrixOp;
+import matrixtree.exception.BadArgumentException;
+import matrixtree.model.*;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Hazel scheme Path matrix P that represent a single path in the tree. Note for Hazel scheme the true root is
@@ -13,19 +19,27 @@ public class HazelPathMatrix extends BaseMatrix implements PathMatrix, StandardM
 
     /**
      * Initialize {@link HazelPathMatrix} with lower and upper bounds.
-     * @param node encoding ratio
-     * @param sibling encoding ratio
+     *
+     * @param i    nested interval providing lower and upper bound
      */
-    public HazelPathMatrix(Rational node, Rational sibling) {
+    public HazelPathMatrix(NestedInterval i) {
+        // lower bound is node, upper bound is sibling
+        super(//
+                 i.getLower().getNumerator(), i.getUpper().getNumerator(),//
+                 i.getLower().getDenominator(), i.getUpper().getDenominator());
+    }
+
+    public HazelPathMatrix(double numerator, double siblingNumerator, double denominator, double siblingDenominator) {
         // a11, a12, a21, a22
-        super(node.getNumerator(), sibling.getNumerator(), node.getDenominator(), sibling.getDenominator());
+        super((long) numerator, (long) siblingNumerator, (long) denominator, (long) siblingDenominator);
     }
 
     /**
      * Initialize {@link HazelPathMatrix} with individual element.
-     * @param numerator (e11) node numerator
-     * @param siblingNumerator (e12) node sibling numerator
-     * @param denominator (e21) node denominator
+     *
+     * @param numerator          (e11) node numerator
+     * @param siblingNumerator   (e12) node sibling numerator
+     * @param denominator        (e21) node denominator
      * @param siblingDenominator (e22) node sibling denominator
      */
     public HazelPathMatrix(long numerator, long siblingNumerator, long denominator, long siblingDenominator) {
@@ -53,20 +67,9 @@ public class HazelPathMatrix extends BaseMatrix implements PathMatrix, StandardM
         return getE22();
     }
 
-    public Rational getNodeEncoding() {
-        return new Rational(getNumerator(), getDenominator());
-    }
-
-    public Rational getLowerBound() {
-        return getNodeEncoding();
-    }
-
-    public Rational getSiblingNodeEncoding() {
-        return new Rational(getSiblingNumerator(), getSiblingDenominator());
-    }
-
-    public Rational getUpperBound() {
-        return getSiblingNodeEncoding();
+    @Override
+    public NestedInterval asNestedInterval() {
+        return new NestedInterval(this);
     }
 
     /**
@@ -84,6 +87,94 @@ public class HazelPathMatrix extends BaseMatrix implements PathMatrix, StandardM
         // remember det = -1
         // inv = -d(a22) b(a12) c(a21) -a(a11)
         return new BaseMatrix(-getE22(), getE12(), getE21(), -getE11());
+    }
+
+    @Override
+    public PathMatrix computeRootMatrix() {
+        /*
+         * _n numerator and _d denominator.
+         * p parent node (e.g. 2.4.3) encoding.
+         * sp parent sibling node (e.g. 2.4.4) encoding.
+         */
+
+        long numerator = getNumerator()/getDenominator();
+        long denominator = 1;
+
+        long siblingNumerator = numerator + 1;
+        long siblingDenominator = 1;
+
+        return new HazelPathMatrix(numerator, siblingNumerator, denominator, siblingDenominator);
+    }
+
+    @Override
+    public Ancestors computeAncestors() {
+        long numerator = getNumerator();
+        long denominator = getDenominator();
+
+        // Origin matrix {{0,1}{1,0}} [0, Inf)
+        long parentNum = 0;
+        long parentDen = 1;
+        long parentSiblingNum = 1;
+        long parentSiblingDen = 0;
+
+        List<PathMatrix> ancestorMatrices = new ArrayList<>();
+        List<Long> path = new ArrayList<>();
+        while (numerator > 0 && denominator > 0) {
+            // Do not simplify, this is for clarity
+            long div = numerator / denominator;
+            long mod = numerator % denominator;
+            parentNum = parentNum + div * parentSiblingNum;
+            parentDen = parentDen + div * parentSiblingDen;
+            parentSiblingNum = parentNum + parentSiblingNum;
+            parentSiblingDen = parentDen + parentSiblingDen;
+
+            path.add(div);
+            ancestorMatrices.add(new HazelPathMatrix(parentNum, parentSiblingNum, parentDen, parentSiblingDen));
+
+            numerator = mod;
+            if (numerator != 0) {
+                denominator = denominator % mod;
+                if (denominator == 0) {
+                    denominator = 1;
+                }
+            }
+        }
+
+        return new HazelAncestors(new HazelTreePath(path), ancestorMatrices);
+    }
+
+    @Override
+    public PathMatrix computeParentMatrix() {
+        if (getDenominator() <= 1)
+        {
+            // When denominator == 1 : Reached top level already, division by 0 my occur
+            throw new BadArgumentException("denominator",getDenominator(),"[2,Inf)");
+        }
+
+        // e12 is parent sibling numerator
+        long e12 = getSiblingNumerator() - getNumerator();
+        // e22 is parent sibling denominator
+        long e22 = getSiblingDenominator() - getDenominator();
+        // e11 is parent numerator
+        long e11 = getNumerator() % e12;
+        // e21 is parent denominator
+        long e21 = getDenominator() % e22;
+
+        // parent path matrix
+        return new HazelPathMatrix(e11, e12, e21, e22);
+    }
+
+    @Override
+    public PathMatrix computeSibling(long k)
+    {
+        MatrixOp op = new ExactMatrixOp();
+        return new HazelPathMatrix(op.multiply(this, new HazelSiblingRelocationMatrix(k)));
+    }
+
+    @Override
+    public PathMatrix computeChild(long k) {
+        MatrixOp op = new ExactMatrixOp();
+        return new HazelPathMatrix(op.multiply(this, new HazelNodeMatrix(k)));
     }
 
 }

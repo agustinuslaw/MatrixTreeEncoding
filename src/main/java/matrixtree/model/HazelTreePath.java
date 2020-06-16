@@ -1,10 +1,6 @@
 package matrixtree.model;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.LinkedList;
-import java.util.List;
+import java.util.*;
 
 import matrixtree.computation.ExactMatrixOp;
 import matrixtree.computation.MatrixOp;
@@ -21,18 +17,15 @@ import static java.util.Collections.*;
  */
 public class HazelTreePath implements TreePath  {
 	private final List<Long> path;
-	private final PathMatrix encoding;
 	
 	public HazelTreePath(Long... nodes) {
 		super();
 		this.path = unmodifiableList(List.of(nodes));
-		this.encoding = computeEncoding(this.path);
 	}
 	
 	public HazelTreePath(List<Long> nodes) {
 		super();
 		this.path = unmodifiableList(nodes);
-		this.encoding = computeEncoding(this.path);
 	}
 	
 	// TODO get sibling encoding
@@ -54,19 +47,33 @@ public class HazelTreePath implements TreePath  {
 	}
 	
 	@Override
-	public PathMatrix getPathMatrix() {
-		return encoding;
-	}
-
-	private HazelPathMatrix computeEncoding(List<Long> nodes)
-	{
+	public PathMatrix computePathMatrix() {
 		List<StandardMatrix> product = new ArrayList<>();
-		
+
 		product.add(new HazelOriginMatrix());
-		nodes.forEach(node -> product.add(new HazelNodeMatrix(node)));
-		
+		path.forEach(node -> product.add(new HazelNodeMatrix(node)));
+
 		MatrixOp op = new ExactMatrixOp();
 		return new HazelPathMatrix(op.multiply(product));
 	}
-	
+
+	@Override
+	public boolean equals(Object o) {
+		if (this == o) return true;
+		if (o == null || getClass() != o.getClass()) return false;
+
+		HazelTreePath that = (HazelTreePath) o;
+
+		return Objects.equals(path, that.path);
+	}
+
+	@Override
+	public int hashCode() {
+		return path != null ? path.hashCode() : 0;
+	}
+
+	@Override
+	public String toString() {
+		return "HazelTreePath{" + path.stream().map(Objects::toString).reduce((x, y) -> x+"."+y) + '}';
+	}
 }

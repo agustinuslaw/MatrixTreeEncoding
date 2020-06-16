@@ -1,5 +1,7 @@
 package matrixtree.matrices;
 
+import matrixtree.model.Ancestors;
+import matrixtree.model.NestedInterval;
 import matrixtree.model.Rational;
 
 /**
@@ -19,12 +21,15 @@ public interface PathMatrix extends StandardMatrix, SimpleInvertible {
 
     long getSiblingDenominator();
 
-    Rational getNodeEncoding();
+    NestedInterval asNestedInterval();
 
-    Rational getLowerBound();
+    PathMatrix computeRootMatrix();
 
-    Rational getSiblingNodeEncoding();
+    Ancestors computeAncestors();
 
-    Rational getUpperBound();
+    PathMatrix computeParentMatrix();
 
+    PathMatrix computeSibling(long k);
+
+    PathMatrix computeChild(long k);
 }
