@@ -41,7 +41,6 @@ class PathMatrixTest {
         Ancestors etp = m.computeAncestors();
 
         assertEquals(path, etp.getTreePath());
-
     }
 
     @Test
@@ -65,6 +64,13 @@ class PathMatrixTest {
 
         assertEquals(child4, current.computeChild(4));
         assertEquals(child2, current.computeChild(2));
+    }
+
+    @Test
+    void depth() {
+        PathMatrix current = new HazelTreePath(2L, 4L, 2L).computePathMatrix();
+
+        assertEquals(3, current.computeDepth());
     }
 
     void subtreeRelocation() {

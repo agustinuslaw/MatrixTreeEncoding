@@ -107,6 +107,13 @@ public class HazelPathMatrix extends BaseMatrix implements PathMatrix, StandardM
     }
 
     @Override
+    public int computeDepth() {
+        Ancestors anc = computeAncestors();
+
+        return anc.getAncestorMatrices().size();
+    }
+
+    @Override
     public Ancestors computeAncestors() {
         long numerator = getNumerator();
         long denominator = getDenominator();

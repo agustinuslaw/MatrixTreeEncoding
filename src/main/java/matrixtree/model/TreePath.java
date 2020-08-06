@@ -27,4 +27,10 @@ public interface TreePath {
 	 */
 	TreePath getParentPath();
 
+	/**
+	 *
+	 * @return depth of the {@link TreePath}
+	 */
+	int depth();
+
 }

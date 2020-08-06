@@ -45,8 +45,13 @@ public class HazelTreePath implements TreePath  {
 		
 		return new HazelTreePath(nodes);
 	}
-	
-	@Override
+
+    @Override
+    public int depth() {
+        return path.size();
+    }
+
+    @Override
 	public PathMatrix computePathMatrix() {
 		List<StandardMatrix> product = new ArrayList<>();
 

@@ -12,7 +12,6 @@ import matrixtree.model.Rational;
  * @author Agustinus Lawandy
  */
 public interface PathMatrix extends StandardMatrix, SimpleInvertible {
-
     long getNumerator();
 
     long getDenominator();
@@ -24,6 +23,8 @@ public interface PathMatrix extends StandardMatrix, SimpleInvertible {
     NestedInterval asNestedInterval();
 
     PathMatrix computeRootMatrix();
+
+    int computeDepth();
 
     Ancestors computeAncestors();
 
