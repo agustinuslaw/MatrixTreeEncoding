@@ -1,9 +1,8 @@
 package matrixtree.model;
 
-import matrixtree.matrices.HazelPathMatrix;
-import matrixtree.matrices.PathMatrix;
-
 import java.util.Objects;
+
+import matrixtree.matrices.PathMatrix;
 
 public class NestedInterval {
     Rational lower;

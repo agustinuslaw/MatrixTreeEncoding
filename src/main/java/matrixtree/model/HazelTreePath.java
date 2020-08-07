@@ -20,7 +20,7 @@ public class HazelTreePath implements TreePath  {
 	
 	public HazelTreePath(Long... nodes) {
 		super();
-		this.path = unmodifiableList(List.of(nodes));
+		this.path = unmodifiableList(Arrays.asList(nodes));
 	}
 	
 	public HazelTreePath(List<Long> nodes) {

@@ -1,12 +1,8 @@
 package matrixtree.model;
 
-import jdk.nashorn.api.tree.Tree;
-import matrixtree.matrices.PathMatrix;
-
-import javax.annotation.Nonnull;
-import java.util.Collection;
 import java.util.List;
-import java.util.function.Supplier;
+
+import matrixtree.matrices.PathMatrix;
 
 /**
  * Ancestors contain TreePath and precomputed

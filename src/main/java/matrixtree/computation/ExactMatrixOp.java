@@ -1,7 +1,6 @@
 package matrixtree.computation;
 
 import java.util.Collection;
-import java.util.function.Supplier;
 
 import matrixtree.matrices.BaseMatrix;
 import matrixtree.matrices.StandardMatrix;

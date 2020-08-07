@@ -2,7 +2,6 @@ package matrixtree.matrices;
 
 import matrixtree.model.Ancestors;
 import matrixtree.model.NestedInterval;
-import matrixtree.model.Rational;
 
 /**
  * Path matrix P that represent a single path in the tree. <br>

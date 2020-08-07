@@ -1,12 +1,12 @@
 package matrixtree.matrices;
 
-import matrixtree.model.Ancestors;
-import matrixtree.model.HazelTreePath;
-import matrixtree.model.Rational;
-import matrixtree.model.TreePath;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
 import org.junit.jupiter.api.Test;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import matrixtree.model.Ancestors;
+import matrixtree.model.HazelTreePath;
+import matrixtree.model.TreePath;
 
 /**
  * @author Agustinus Lawandy
