@@ -5,31 +5,82 @@ import matrixtree.model.NestedInterval;
 
 /**
  * Path matrix P that represent a single path in the tree. <br>
- * The notation is P[2.4.3] to indicate path encoding matrix for path 2.4.3. <br>
- * P[2.4.3] = O.N[2].N[4].N[3] where O is Origin matrix (depends on algorithm used, maybe identity I) and N is the Node matrix.
+ * The notation is P[2.4.3] to indicate path encoding matrix for path 2.4.3.
+ * <br>
+ * P[2.4.3] = O.N[2].N[4].N[3] where O is Origin matrix (depends on algorithm
+ * used, maybe identity I) and N is the Node matrix.
  *
  * @author Agustinus Lawandy
  */
-public interface PathMatrix extends StandardMatrix, SimpleInvertible {
-    long getNumerator();
+public interface PathMatrix extends StandardMatrix, SimpleInvertible, Comparable<PathMatrix> {
 
-    long getDenominator();
+	/**
+	 * @return Numerator of the left/lower bound.
+	 */
+	long getNumerator();
 
-    long getSiblingNumerator();
+	/**
+	 * @return Denominator of the left/lower bound.
+	 */
+	long getDenominator();
 
-    long getSiblingDenominator();
+	/**
+	 * @return Numerator of the right/upper bound.
+	 */
+	long getSiblingNumerator();
 
-    NestedInterval asNestedInterval();
+	/**
+	 * @return Denominator of the right/upper bound.
+	 */
+	long getSiblingDenominator();
 
-    PathMatrix computeRootMatrix();
+	/**
+	 * @return Another representation of the matrix in the form of interval [x,y)
+	 */
+	NestedInterval asNestedInterval();
 
-    int computeDepth();
+	/**
+	 * @return Compute the root matrix (matrix of the root node in the tree).
+	 */
+	PathMatrix computeRootMatrix();
 
-    Ancestors computeAncestors();
+	/**
+	 * @return The depth of the matrix.
+	 */
+	int computeDepth();
 
-    PathMatrix computeParentMatrix();
+	/**
+	 * @return index among siblings
+	 */
+	long computeIndex();
+	
+	/**
+	 * @return if this path matrix is at the root.
+	 */
+	boolean isRoot();
+	
+	/**
+	 * @return the ancestors of this path matrix (entire path matrix to the root)
+	 */
+	Ancestors computeAncestors();
 
-    PathMatrix computeSibling(long k);
+	/**
+	 * @return parent path matrix if this matrix is not root.
+	 */
+	PathMatrix computeParentMatrix();
 
-    PathMatrix computeChild(long k);
+	/**
+	 * @param k-th sibling from current location
+	 * @return sibling matrix
+	 */
+	PathMatrix computeSibling(long k);
+
+	/**
+	 * @param k-th child
+	 * @return child matrix
+	 */
+	PathMatrix computeChild(long k);
+	
+	
+	
 }

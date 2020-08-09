@@ -15,7 +15,9 @@ import matrixtree.exception.BadArgumentException;
  */
 public class HazelSiblingRelocationMatrix extends BaseMatrix implements StandardMatrix, SimpleInvertible {
 
-    /**
+    private static final long serialVersionUID = -317374135292198078L;
+
+	/**
      * Horizontally relocate the EncodingMatrix from n-th child to m-th child.
      * {{1-(m-n),-(m-n)},{m-n,1+m-n}}
      *

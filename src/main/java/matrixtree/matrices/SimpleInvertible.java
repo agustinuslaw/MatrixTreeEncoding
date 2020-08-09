@@ -7,7 +7,7 @@ package matrixtree.matrices;
  *
  * @author Agustinus Lawandy
  */
-public interface SimpleInvertible {
+public interface SimpleInvertible extends StandardMatrix {
 
 	/**
 	 * Invert the matrix M. Only possible for matrix with determinant != 0.

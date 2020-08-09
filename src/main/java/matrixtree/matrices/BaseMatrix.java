@@ -1,5 +1,8 @@
 package matrixtree.matrices;
 
+import matrixtree.computation.ExactMatrixOp;
+import matrixtree.computation.MatrixOp;
+
 /**
  * Standard structure for 2x2 matrix M.
  * <p>
@@ -12,6 +15,10 @@ package matrixtree.matrices;
  */
 public class BaseMatrix implements StandardMatrix {
 
+	private static final long serialVersionUID = 6605341038170957568L;
+
+	private static MatrixOp defaultOp = new ExactMatrixOp();
+	
     /**
      * a11 : Numerator
      */
@@ -120,5 +127,10 @@ public class BaseMatrix implements StandardMatrix {
     public String toString() {
         return getClass().getSimpleName() + "{{" + e11 + "," + e12 + "},{" + e21 + "," + e22 + "}}";
     }
+
+	@Override
+	public StandardMatrix multiply(StandardMatrix b) {
+		return defaultOp.multiply(this,b);
+	}
 
 }

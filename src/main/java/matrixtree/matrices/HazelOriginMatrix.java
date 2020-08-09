@@ -9,6 +9,8 @@ package matrixtree.matrices;
  */
 public class HazelOriginMatrix extends BaseMatrix implements StandardMatrix, SimpleInvertible {
 
+	private static final long serialVersionUID = 6277392036974354531L;
+
 	public HazelOriginMatrix() {
 		super(0, 1, 1, 0);
 	}

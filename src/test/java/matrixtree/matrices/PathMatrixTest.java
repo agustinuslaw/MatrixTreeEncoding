@@ -72,8 +72,11 @@ class PathMatrixTest {
 
         assertEquals(3, current.computeDepth());
     }
-
-    void subtreeRelocation() {
-        // TODO compute subtree relocation to another parent
+    
+    @Test
+    void index() {
+        PathMatrix current = new HazelTreePath(2L, 4L, 7L).computePathMatrix();
+        
+        assertEquals(7L, current.computeIndex());
     }
 }

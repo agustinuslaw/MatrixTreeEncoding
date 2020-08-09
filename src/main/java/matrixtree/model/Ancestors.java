@@ -1,5 +1,6 @@
 package matrixtree.model;
 
+import java.io.Serializable;
 import java.util.List;
 
 import matrixtree.matrices.PathMatrix;
@@ -10,7 +11,7 @@ import matrixtree.matrices.PathMatrix;
  * @author Agustinus Lawandy
  * @since 2020.06.15
  */
-public interface Ancestors {
+public interface Ancestors extends Serializable, Comparable<Ancestors> {
 
 	TreePath getTreePath();
 

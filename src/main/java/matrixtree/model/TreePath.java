@@ -1,5 +1,6 @@
 package matrixtree.model;
 
+import java.io.Serializable;
 import java.util.List;
 
 import matrixtree.matrices.PathMatrix;
@@ -10,15 +11,15 @@ import matrixtree.matrices.PathMatrix;
  * @author Agustinus Lawandy
  * @since 2020.06.15
  */
-public interface TreePath {
+public interface TreePath extends Serializable, Comparable<TreePath> {
 
 	/**
-	 * @return tree path in terms of child positions c e.g. 2.4.3
+	 * @return tree path in terms of child positions c. e.g. 2.4.3
 	 */
 	List<Long> asList();
 
 	/**
-	 * @return the Path matrix P encoding of this path e.g. P[2.4.3]
+	 * @return the path matrix P encoding of this path e.g. P[2.4.3]
 	 */
 	PathMatrix computePathMatrix();
 

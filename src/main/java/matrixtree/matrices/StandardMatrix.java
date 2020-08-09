@@ -1,11 +1,13 @@
 package matrixtree.matrices;
 
+import java.io.Serializable;
+
 /**
  * Standard matrix M that represent all 2x2 matrix in the application.
  *
  * @author Agustinus Lawandy
  */
-public interface StandardMatrix {
+public interface StandardMatrix extends Serializable {
 
     /**
      * {{e11,e12},{e21,e22}} <br>
@@ -51,5 +53,15 @@ public interface StandardMatrix {
      * @return determinant of matrix.
      */
     long determinant();
+    
+    
+    /**
+     * Multiplies this matrix (a) by other matrix (b). <br>
+     * The result matrix c = a * b.
+     * 
+     * @param b matrix to multiply with
+     * @return a * b
+     */
+    StandardMatrix multiply(StandardMatrix b);
 
 }
