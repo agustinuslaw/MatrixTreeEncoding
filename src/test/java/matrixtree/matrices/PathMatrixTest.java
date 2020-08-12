@@ -14,69 +14,76 @@ import matrixtree.model.TreePath;
  */
 class PathMatrixTest {
 
-    // TODO add JUnit parameter for parametric testing
-    // TODO test each defined constructor for equality
+	// TODO add JUnit parameter for parametric testing
+	// TODO test each defined constructor for equality
 
-    @Test
-    void parent() {
-        PathMatrix parent = new HazelTreePath(2L, 7L, 5L).computePathMatrix();
-        PathMatrix node = new HazelTreePath(2L, 7L, 5L, 3L).computePathMatrix();
+	@Test
+	void parent() {
+		PathMatrix parent = new HazelTreePath(2L, 7L, 5L).computePathMatrix();
+		PathMatrix node = new HazelTreePath(2L, 7L, 5L, 3L).computePathMatrix();
 
-        assertEquals(parent, node.computeParentMatrix());
-    }
+		PathMatrix parent2 = new HazelTreePath(3L).computePathMatrix();
+		PathMatrix node2 = new HazelTreePath(3L, 1L).computePathMatrix();
 
-    @Test
-    void root() {
-        PathMatrix root = new HazelTreePath(2L).computePathMatrix();
-        PathMatrix node = new HazelTreePath(2L, 7L, 5L, 3L).computePathMatrix();
+		assertEquals(parent, node.computeParentMatrix());
+		assertEquals(parent2, node2.computeParentMatrix());
+	}
 
-        assertEquals(root, node.computeRootMatrix());
-    }
+	@Test
+	void root() {
+		PathMatrix root = new HazelTreePath(2L).computePathMatrix();
+		PathMatrix node = new HazelTreePath(2L, 7L, 5L, 3L).computePathMatrix();
 
-    @Test
-    void path() {
-        TreePath path = new HazelTreePath(2L, 7L, 5L, 3L);
-        PathMatrix m = path.computePathMatrix();
+		assertEquals(root, node.computeRootMatrix());
+	}
 
-        Ancestors etp = m.computeAncestors();
+	@Test
+	void path() {
+		TreePath path = new HazelTreePath(2L, 7L, 5L, 3L);
+		PathMatrix m = path.computePathMatrix();
+		Ancestors ancestor = m.computeAncestors();
 
-        assertEquals(path, etp.getTreePath());
-    }
+		PathMatrix mat = new HazelPathMatrix(101, 152, 2, 3);
+		Ancestors ancestor2 = mat.computeAncestors();
 
-    @Test
-    void sibling() {
-        PathMatrix leftSibling = new HazelTreePath(2L, 4L, 1L).computePathMatrix();
-        PathMatrix current = new HazelTreePath(2L, 4L, 2L).computePathMatrix();
-        PathMatrix rightSibling = new HazelTreePath(2L, 4L, 3L).computePathMatrix();
-        PathMatrix tenthSibling = new HazelTreePath(2L, 4L, 12L).computePathMatrix();
+		assertEquals(path, ancestor.getTreePath());
+		assertEquals(new HazelTreePath(50L, 1L), ancestor2.getTreePath());
+	}
 
-        assertEquals(leftSibling, current.computeSibling(-1));
-        assertEquals(current, current.computeSibling(0));
-        assertEquals(rightSibling, current.computeSibling(1));
-        assertEquals(tenthSibling, current.computeSibling(10));
-    }
+	@Test
+	void sibling() {
+		PathMatrix leftSibling = new HazelTreePath(2L, 4L, 1L).computePathMatrix();
+		PathMatrix current = new HazelTreePath(2L, 4L, 2L).computePathMatrix();
+		PathMatrix rightSibling = new HazelTreePath(2L, 4L, 3L).computePathMatrix();
+		PathMatrix tenthSibling = new HazelTreePath(2L, 4L, 12L).computePathMatrix();
 
-    @Test
-    void child() {
-        PathMatrix current = new HazelTreePath(2L, 4L, 2L).computePathMatrix();
-        PathMatrix child4 = new HazelTreePath(2L, 4L, 2L, 4L).computePathMatrix();
-        PathMatrix child2 = new HazelTreePath(2L, 4L, 2L, 2L).computePathMatrix();
+		assertEquals(leftSibling, current.computeSibling(-1));
+		assertEquals(current, current.computeSibling(0));
+		assertEquals(rightSibling, current.computeSibling(1));
+		assertEquals(tenthSibling, current.computeSibling(10));
+	}
 
-        assertEquals(child4, current.computeChild(4));
-        assertEquals(child2, current.computeChild(2));
-    }
+	@Test
+	void child() {
+		PathMatrix current = new HazelTreePath(2L, 4L, 2L).computePathMatrix();
+		PathMatrix child4 = new HazelTreePath(2L, 4L, 2L, 4L).computePathMatrix();
+		PathMatrix child2 = new HazelTreePath(2L, 4L, 2L, 2L).computePathMatrix();
 
-    @Test
-    void depth() {
-        PathMatrix current = new HazelTreePath(2L, 4L, 2L).computePathMatrix();
+		assertEquals(child4, current.computeChild(4));
+		assertEquals(child2, current.computeChild(2));
+	}
 
-        assertEquals(3, current.computeDepth());
-    }
-    
-    @Test
-    void index() {
-        PathMatrix current = new HazelTreePath(2L, 4L, 7L).computePathMatrix();
-        
-        assertEquals(7L, current.computeIndex());
-    }
+	@Test
+	void depth() {
+		PathMatrix current = new HazelTreePath(2L, 4L, 2L).computePathMatrix();
+
+		assertEquals(3, current.computeDepth());
+	}
+
+	@Test
+	void index() {
+		PathMatrix current = new HazelTreePath(2L, 4L, 7L).computePathMatrix();
+
+		assertEquals(7L, current.computeIndex());
+	}
 }

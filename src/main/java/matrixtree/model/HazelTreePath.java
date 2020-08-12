@@ -82,7 +82,7 @@ public class HazelTreePath implements TreePath {
 
 	@Override
 	public String toString() {
-		return "HazelTreePath{" + path.stream().map(Objects::toString).reduce((x, y) -> x + "." + y) + '}';
+		return "HazelTreePath{" + path.stream().map(Objects::toString).reduce((x, y) -> x + "." + y).orElse("") + '}';
 	}
 
 	@Override

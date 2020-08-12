@@ -1,12 +1,14 @@
 package matrixtree.matrices;
 
-import matrixtree.computation.ExactMatrixOp;
-import matrixtree.computation.MatrixOp;
-import matrixtree.exception.BadArgumentException;
-import matrixtree.model.*;
-
 import java.util.ArrayList;
 import java.util.List;
+
+import matrixtree.computation.ExactMatrixOp;
+import matrixtree.computation.MatrixOp;
+import matrixtree.model.HazelAncestors;
+import matrixtree.model.HazelTreePath;
+import matrixtree.model.NestedInterval;
+import matrixtree.model.Rational;
 
 /**
  * Hazel scheme Path matrix P that represent a single path in the tree. Note for
@@ -20,21 +22,13 @@ public class HazelPathMatrix extends BaseMatrix implements PathMatrix, StandardM
 
 	private static final long serialVersionUID = 4792910434082808474L;
 
-	/**
-	 * Initialize {@link HazelPathMatrix} with lower and upper bounds.
-	 *
-	 * @param i nested interval providing lower and upper bound
-	 */
-	public HazelPathMatrix(NestedInterval i) {
-		// lower bound is node, upper bound is sibling
-		super(//
-				i.getLower().getNumerator(), i.getUpper().getNumerator(), //
-				i.getLower().getDenominator(), i.getUpper().getDenominator());
-	}
-
 	public HazelPathMatrix(double numerator, double siblingNumerator, double denominator, double siblingDenominator) {
 		// a11, a12, a21, a22
 		super((long) numerator, (long) siblingNumerator, (long) denominator, (long) siblingDenominator);
+	}
+
+	public HazelPathMatrix(HazelPathMatrix parent, long index) {
+		super(parent.multiply(new HazelNodeMatrix(index)));
 	}
 
 	/**
@@ -50,28 +44,20 @@ public class HazelPathMatrix extends BaseMatrix implements PathMatrix, StandardM
 		super(numerator, siblingNumerator, denominator, siblingDenominator);
 	}
 
-	public HazelPathMatrix(HazelPathMatrix parent, long index) {
-		super(parent.multiply(new HazelNodeMatrix(index)));
+	/**
+	 * Initialize {@link HazelPathMatrix} with lower and upper bounds.
+	 *
+	 * @param i nested interval providing lower and upper bound
+	 */
+	public HazelPathMatrix(NestedInterval i) {
+		// lower bound is node, upper bound is sibling
+		super(//
+				i.getLower().getNumerator(), i.getUpper().getNumerator(), //
+				i.getLower().getDenominator(), i.getUpper().getDenominator());
 	}
 
 	public HazelPathMatrix(StandardMatrix other) {
 		super(other);
-	}
-
-	public long getNumerator() {
-		return getE11();
-	}
-
-	public long getDenominator() {
-		return getE21();
-	}
-
-	public long getSiblingNumerator() {
-		return getE12();
-	}
-
-	public long getSiblingDenominator() {
-		return getE22();
 	}
 
 	@Override
@@ -79,46 +65,18 @@ public class HazelPathMatrix extends BaseMatrix implements PathMatrix, StandardM
 		return new NestedInterval(this);
 	}
 
-	/**
-	 * Determinant is always -1 because <br>
-	 * Encoding Matrix = Origin Matrix * Node Matrices... <br>
-	 * det = -1 * ( 1 * 1 * ...) = -1
-	 */
 	@Override
-	public long determinant() {
-		return -1;
-	}
-
-	@Override
-	public StandardMatrix invert() {
-		// remember det = -1
-		// inv = -d(a22) b(a12) c(a21) -a(a11)
-		return new BaseMatrix(-getE22(), getE12(), getE21(), -getE11());
-	}
-
-	@Override
-	public HazelPathMatrix computeRootMatrix() {
-		/*
-		 * _n numerator and _d denominator. p parent node (e.g. 2.4.3) encoding. sp
-		 * parent sibling node (e.g. 2.4.4) encoding.
-		 */
-
-		long numerator = getNumerator() / getDenominator();
-		long denominator = 1;
-
-		long siblingNumerator = numerator + 1;
-		long siblingDenominator = 1;
-
-		return new HazelPathMatrix(numerator, siblingNumerator, denominator, siblingDenominator);
-	}
-
-	@Override
-	public int computeDepth() {
-		return computeAncestors().getAncestorMatrices().size();
+	public int compareTo(PathMatrix o) {
+		// ratio comparison
+		Rational ref = new Rational(getNumerator(), getDenominator());
+		Rational other = new Rational(o.getNumerator(), o.getDenominator());
+		return ref.compareTo(other);
 	}
 
 	@Override
 	public HazelAncestors computeAncestors() {
+		// Refer algorithm to Hazel's paper.
+		
 		long numerator = getNumerator();
 		long denominator = getDenominator();
 
@@ -156,10 +114,35 @@ public class HazelPathMatrix extends BaseMatrix implements PathMatrix, StandardM
 	}
 
 	@Override
+	public PathMatrix computeChild(long k) {
+		MatrixOp op = new ExactMatrixOp();
+		return new HazelPathMatrix(op.multiply(this, new HazelNodeMatrix(k)));
+	}
+
+	@Override
+	public int computeDepth() {
+		return computeAncestors().getAncestorMatrices().size();
+	}
+
+	@Override
+	public long computeIndex() {
+		if (isRoot())
+		{
+			return getNumerator();
+		}
+		
+		PathMatrix parent = this.computeParentMatrix();
+		// P N = C -> N = inv(P) C
+		StandardMatrix node = parent.invert().multiply(this);
+		HazelNodeMatrix nodeMat = new HazelNodeMatrix(node);
+		return nodeMat.getIndex();
+	}
+
+	@Override
 	public HazelPathMatrix computeParentMatrix() {
 		if (getDenominator() <= 1) {
-			// When denominator == 1 : Reached top level already, division by 0 my occur
-			throw new BadArgumentException("denominator", getDenominator(), "[2,Inf)");
+			// When denominator == 1 : Reached top level already, thus the parent is null.
+			return null;
 		}
 
 		// e12 is parent sibling numerator
@@ -171,8 +154,33 @@ public class HazelPathMatrix extends BaseMatrix implements PathMatrix, StandardM
 		// e21 is parent denominator
 		long e21 = getDenominator() % e22;
 
+		/*
+		 * Special case at depth 2 (e.g. 34L.2L). Where e21' = d' = d % sd'. But note
+		 * that sd' at depth 2 will be 1. since at depth all denominators are 1. Thus
+		 * e21' = d' = d % 1 = 0. But we can't have denominator 0! Thus we set this as
+		 * 1, which would be the correct answer for this corner case.
+		 */
+		if (e21 == 0)
+			e21 = 1;
+
 		// parent path matrix
 		return new HazelPathMatrix(e11, e12, e21, e22);
+	}
+
+	@Override
+	public HazelPathMatrix computeRootMatrix() {
+		/*
+		 * _n numerator and _d denominator. p parent node (e.g. 2.4.3) encoding. sp
+		 * parent sibling node (e.g. 2.4.4) encoding.
+		 */
+
+		long numerator = getNumerator() / getDenominator();
+		long denominator = 1;
+
+		long siblingNumerator = numerator + 1;
+		long siblingDenominator = 1;
+
+		return new HazelPathMatrix(numerator, siblingNumerator, denominator, siblingDenominator);
 	}
 
 	@Override
@@ -181,33 +189,46 @@ public class HazelPathMatrix extends BaseMatrix implements PathMatrix, StandardM
 		return new HazelPathMatrix(op.multiply(this, new HazelSiblingRelocationMatrix(k)));
 	}
 
+	/**
+	 * Determinant is always -1 because <br>
+	 * Encoding Matrix = Origin Matrix * Node Matrices... <br>
+	 * det = -1 * ( 1 * 1 * ...) = -1
+	 */
 	@Override
-	public PathMatrix computeChild(long k) {
-		MatrixOp op = new ExactMatrixOp();
-		return new HazelPathMatrix(op.multiply(this, new HazelNodeMatrix(k)));
+	public long determinant() {
+		return -1;
 	}
 
 	@Override
-	public long computeIndex() {
-		PathMatrix parent = this.computeParentMatrix();
-		// P N = C -> N = inv(P) C
-		StandardMatrix node = parent.invert().multiply(this);
-		HazelNodeMatrix nodeMat = new HazelNodeMatrix(node);
-		return nodeMat.getIndex();
+	public long getDenominator() {
+		return getE21();
+	}
+
+	@Override
+	public long getNumerator() {
+		return getE11();
+	}
+
+	@Override
+	public long getSiblingDenominator() {
+		return getE22();
+	}
+
+	@Override
+	public long getSiblingNumerator() {
+		return getE12();
+	}
+
+	@Override
+	public StandardMatrix invert() {
+		// remember det = -1
+		// inv = -d(a22) b(a12) c(a21) -a(a11)
+		return new BaseMatrix(-getE22(), getE12(), getE21(), -getE11());
 	}
 
 	@Override
 	public boolean isRoot() {
 		return getDenominator() == 1L && getSiblingDenominator() == 1L;
-	}
-
-	@Override
-	public int compareTo(PathMatrix o) {
-		// ratio comparison
-		
-		Rational ref = new Rational(getNumerator(), getDenominator());
-		Rational other = new Rational(o.getNumerator(), o.getDenominator());
-		return ref.compareTo(other);
 	}
 
 }

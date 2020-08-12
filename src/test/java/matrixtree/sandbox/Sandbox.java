@@ -1,7 +1,5 @@
 package matrixtree.sandbox;
 
-import org.junit.jupiter.api.Test;
-
 import matrixtree.matrices.PathMatrix;
 import matrixtree.model.HazelTreePath;
 import matrixtree.model.NestedInterval;
@@ -13,7 +11,7 @@ import matrixtree.model.NestedInterval;
 class Sandbox {
 
 
-    @Test
+//    @Test
     void child() {
         PathMatrix current = new HazelTreePath(2L, 1L).computePathMatrix();
         PathMatrix child4 = new HazelTreePath(2L, 1L, 1L).computePathMatrix();
@@ -27,9 +25,7 @@ class Sandbox {
 	 */
 	private void summarize(PathMatrix current) {
 		
-		System.out.println(current);
 		NestedInterval currentNi = current.asNestedInterval();
-		System.out.println(currentNi + " : " + currentNi.getLower().doubleValue() + " - " + currentNi.getUpper().doubleValue());
 		
 	}
     

@@ -15,9 +15,9 @@ import matrixtree.model.TreePath;
  */
 public interface MatrixTreeNode<E extends Serializable> extends Serializable, Comparable<MatrixTreeNode<E>> {
 	/**
-	 * @return the pre-computed path matrix of this node.
+	 * @return the ancestors (the path in terms of path matrices)
 	 */
-	PathMatrix getPathMatrix();
+	Ancestors computeAncestors();
 	
 	/**
 	 * @return the tree path of this node (the path in terms of index nodes)
@@ -25,48 +25,48 @@ public interface MatrixTreeNode<E extends Serializable> extends Serializable, Co
 	TreePath computeTreePath();
 	
 	/**
-	 * @return the ancestors (the path in terms of path matrices)
-	 */
-	Ancestors computeAncestors();
-	
-	/**
-	 * @return the stored element in this node
-	 */
-	E getElement();
-	
-	/**
-	 * @return the number of children <code>TreeNode</code>s the receiver contains.
-	 */
-	int getChildCount();
-
-	/**
-	 * @return current index
-	 */
-	long getIndex();
-	
-    /**
      * Returns the child <code>TreeNode</code> at index
      * <code>childIndex</code>.
      */
     MatrixTreeNode<E> getChildAt(int childIndex);
 	
-    /**
+	/**
+	 * @return the number of children <code>TreeNode</code>s the receiver contains.
+	 */
+	int getChildCount();
+	
+	/**
      * @return the children of this node
      */
     List<MatrixTreeNode<E>> getChildren();
-    
+
 	/**
+	 * @return the stored element in this node
+	 */
+	E getElement();
+	
+    /**
+	 * @return current index
+	 */
+	long getIndex();
+	
+    /**
 	 * @return the parent <code>TreeNode</code> of the receiver.
 	 */
 	MatrixTreeNode<E> getParent();
-
+    
 	/**
-	 * @return whether this node is root.
+	 * @return the pre-computed path matrix of this node.
 	 */
-	boolean isRoot();
-	
+	PathMatrix getPathMatrix();
+
 	/**
 	 * @return true if the receiver is a leaf.
 	 */
 	boolean isLeaf();
+	
+	/**
+	 * @return whether this node is root.
+	 */
+	boolean isRoot();
 }
