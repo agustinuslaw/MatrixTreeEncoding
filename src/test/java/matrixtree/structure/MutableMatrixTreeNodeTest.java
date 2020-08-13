@@ -17,7 +17,7 @@ class MutableMatrixTreeNodeTest {
 	 */
 	@Test
 	void testBuildTreeWithIndex() {
-		MutableMatrixTreeNode<Integer> root = new ListHazelMatrixTreeNode<>//
+		MutableMatrixTreeNode<Integer> root = new MapHazelMatrixTreeNode<>//
 		(/* parent: root */ null, /* elem */ 100, /* idx */ 50);
 
 		MutableMatrixTreeNode<Integer> lvl1e4 = root.insert(/* elem */4, /* matrix idx */1);
@@ -46,7 +46,7 @@ class MutableMatrixTreeNodeTest {
 	 */
 	@Test
 	void testBuildTreeSimple() {
-		MutableMatrixTreeNode<String> root = new ListHazelMatrixTreeNode<>//
+		MutableMatrixTreeNode<String> root = new MapHazelMatrixTreeNode<>//
 		(/* parent: root */ null, /* elem */ "100", /* idx 9B */ 9000000000000L);
 
 		MutableMatrixTreeNode<String> lvl1e4 = root.add(/* elem */"4");
@@ -79,8 +79,8 @@ class MutableMatrixTreeNodeTest {
 		HazelPathMatrix mat_50_1 = new HazelPathMatrix(101, 152, 2, 3);
 		Integer elem_50_1 = 4;
 
-		MutableMatrixTreeNode<Integer> root = new ListHazelMatrixTreeNode<>(null, elem_50_root, mat_50_root);
-		MutableMatrixTreeNode<Integer> child = new ListHazelMatrixTreeNode<>(null, elem_50_1, mat_50_1);
+		MutableMatrixTreeNode<Integer> root = new MapHazelMatrixTreeNode<>(null, elem_50_root, mat_50_root);
+		MutableMatrixTreeNode<Integer> child = new MapHazelMatrixTreeNode<>(null, elem_50_1, mat_50_1);
 
 		root.insert(child);
 

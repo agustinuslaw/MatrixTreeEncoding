@@ -1,7 +1,7 @@
 package matrixtree.structure;
 
 import java.io.Serializable;
-import java.util.List;
+import java.util.Collection;
 
 import matrixtree.matrices.PathMatrix;
 import matrixtree.model.Ancestors;
@@ -37,7 +37,7 @@ public interface MatrixTreeNode<E extends Serializable> extends Serializable, Co
 	/**
 	 * @return the children of this node
 	 */
-	List<MatrixTreeNode<E>> getChildren();
+	Collection<MatrixTreeNode<E>> getChildren();
 
 	/**
 	 * @return the stored element in this node
@@ -82,5 +82,5 @@ public interface MatrixTreeNode<E extends Serializable> extends Serializable, Co
 	 * 
 	 * @return top level node in the tree, may not be root
 	 */
-	ListHazelMatrixTreeNode<E> visitTopNode();
+	MatrixTreeNode<E> visitTopNode();
 }

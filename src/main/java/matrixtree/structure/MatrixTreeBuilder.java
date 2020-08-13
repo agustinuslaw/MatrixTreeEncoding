@@ -66,7 +66,7 @@ public class MatrixTreeBuilder<E extends Serializable> {
 
 		// get root
 		PathMatrix firstKey = nodeMap.keySet().iterator().next();
-		return nodeMap.get(firstKey).visitTopNode();
+		return (MutableMatrixTreeNode<E>) nodeMap.get(firstKey).visitTopNode();
 	}
 
 	/* Getters */

@@ -1,9 +1,10 @@
 package matrixtree.structure;
 
 import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.Map;
 import java.util.Objects;
+import java.util.Set;
+import java.util.TreeMap;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
@@ -16,30 +17,30 @@ import matrixtree.model.RationalInterval;
 import matrixtree.validation.Precondition;
 
 /**
- * List based matrix tree node rearranges automatically after remove and insert operations. Thus there are no gaps
- * between indexes.
+ * Map based matrix tree node. Gaps may occur between indexes. No reordering will be done.
  * 
  * @author Agustinus Lawandy
- * @since 2020-08-09
+ *
+ * @param <E> type parameter of element
  */
-public class ListHazelMatrixTreeNode<E extends Serializable> implements MutableMatrixTreeNode<E> {
+public class MapHazelMatrixTreeNode<E extends Serializable> implements MutableMatrixTreeNode<E> {
 
 	private static final long serialVersionUID = -2783094080814941618L;
 
 	// transient to prevent this being serialized, which will cause stackoverflow
-	private transient ListHazelMatrixTreeNode<E> parent;
+	private transient MapHazelMatrixTreeNode<E> parent;
 
 	private E element;
 	private long index;
 	private HazelPathMatrix pathMatrix;
 	private RationalInterval interval;
-	private List<ListHazelMatrixTreeNode<E>> children;
+	private Map<Integer, MapHazelMatrixTreeNode<E>> children;
 	private Class<E> type;
 
-	private final transient Supplier<List<ListHazelMatrixTreeNode<E>>> supplier = ArrayList::new;
+	private final transient Supplier<Map<Integer, MapHazelMatrixTreeNode<E>>> supplier = TreeMap::new;
 
 	@SuppressWarnings("unchecked")
-	public ListHazelMatrixTreeNode(ListHazelMatrixTreeNode<E> parent, E element, long index) {
+	public MapHazelMatrixTreeNode(MapHazelMatrixTreeNode<E> parent, E element, long index) {
 		super();
 
 		// simple setting
@@ -55,7 +56,7 @@ public class ListHazelMatrixTreeNode<E extends Serializable> implements MutableM
 	}
 
 	@SuppressWarnings("unchecked")
-	public ListHazelMatrixTreeNode(ListHazelMatrixTreeNode<E> parent, E element, HazelPathMatrix matrix) {
+	public MapHazelMatrixTreeNode(MapHazelMatrixTreeNode<E> parent, E element, HazelPathMatrix matrix) {
 		super();
 
 		// simple setting
@@ -79,7 +80,7 @@ public class ListHazelMatrixTreeNode<E extends Serializable> implements MutableM
 		return type;
 	}
 
-	public Supplier<List<ListHazelMatrixTreeNode<E>>> getSupplier() {
+	public Supplier<Map<Integer, MapHazelMatrixTreeNode<E>>> getSupplier() {
 		return supplier;
 	}
 
@@ -121,18 +122,19 @@ public class ListHazelMatrixTreeNode<E extends Serializable> implements MutableM
 			return false;
 		if (getClass() != obj.getClass())
 			return false;
-		@SuppressWarnings("unchecked")
-		ListHazelMatrixTreeNode<E> other = (ListHazelMatrixTreeNode<E>) obj;
-		return Objects.equals(pathMatrix, other.pathMatrix);
+		@SuppressWarnings("rawtypes")
+		MapHazelMatrixTreeNode other = (MapHazelMatrixTreeNode) obj;
+		return Objects.equals(children, other.children) && Objects.equals(element, other.element)
+				&& index == other.index && Objects.equals(interval, other.interval)
+				&& Objects.equals(pathMatrix, other.pathMatrix) && Objects.equals(type, other.type);
 	}
 
 	@Override
-	public ListHazelMatrixTreeNode<E> getChildAt(int childIndex) {
-		// When denominator == 1 : Reached top level already, division by 0 my occur
+	public MapHazelMatrixTreeNode<E> getChildAt(int childIndex) {
 		Precondition.checkDomain(childIndex > 0, "childIndex", childIndex, "[1,Inf)");
 
 		// this downcast is appropriate since only root elements can be long
-		return children.get(positionOf(childIndex));
+		return children.get(childIndex);
 	}
 
 	@Override
@@ -140,11 +142,10 @@ public class ListHazelMatrixTreeNode<E extends Serializable> implements MutableM
 		return children.size();
 	}
 
-	public List<MatrixTreeNode<E>> getChildren() {
+	@SuppressWarnings("unchecked")
+	public Set<MatrixTreeNode<E>> getChildren() {
 		// safety copy to avoid aliasing error
-		return children.stream()//
-				.map(e -> ((MatrixTreeNode<E>) e))//
-				.collect(Collectors.toList());
+		return children.values().stream().map(n -> (MatrixTreeNode<E>) children).collect(Collectors.toSet());
 	}
 
 	@Override
@@ -158,7 +159,7 @@ public class ListHazelMatrixTreeNode<E extends Serializable> implements MutableM
 	}
 
 	@Override
-	public ListHazelMatrixTreeNode<E> getParent() {
+	public MapHazelMatrixTreeNode<E> getParent() {
 		return parent;
 	}
 
@@ -169,25 +170,13 @@ public class ListHazelMatrixTreeNode<E extends Serializable> implements MutableM
 
 	@Override
 	public int hashCode() {
-		return Objects.hash(pathMatrix);
-	}
-
-	/**
-	 * Converts between list position into matrix index. This is because index starts from 1. While the list element
-	 * starts from 0
-	 * <p>
-	 * return position + 1;
-	 * 
-	 * @param position of list
-	 * @return matrix index
-	 */
-	private int indexOf(int position) {
-		return position + 1;
+		return Objects.hash(children, element, index, interval, pathMatrix, type);
 	}
 
 	@Override
 	public MutableMatrixTreeNode<E> insert(MutableMatrixTreeNode<E> child) {
-		children.add((ListHazelMatrixTreeNode<E>) child);
+		// downcast is appropriate because child indexes are always ints
+		children.put((int) child.getIndex(), (MapHazelMatrixTreeNode<E>) child);
 		child.setParent(this);
 		return child;
 	}
@@ -195,13 +184,17 @@ public class ListHazelMatrixTreeNode<E extends Serializable> implements MutableM
 	@Override
 	public MutableMatrixTreeNode<E> add(E childElement) {
 
-		return insert(childElement, indexOf(getChildCount()));
+		return insert(childElement, getNextIndex());
+	}
+
+	private int getNextIndex() {
+		// downcast is appropriate because child indexes are always int
+		return (int) children.keySet().stream().max(Long::compare).orElse(0) + 1;
 	}
 
 	@Override
 	public MutableMatrixTreeNode<E> insert(E childElement, int childIndex) {
-		ListHazelMatrixTreeNode<E> inserted = new ListHazelMatrixTreeNode<>(this, childElement, childIndex);
-		return insert(inserted);
+		return insert(new MapHazelMatrixTreeNode<E>(this, childElement, childIndex));
 	}
 
 	@Override
@@ -214,21 +207,8 @@ public class ListHazelMatrixTreeNode<E extends Serializable> implements MutableM
 		return parent == null && pathMatrix.isRoot();
 	}
 
-	/**
-	 * Converts between matrix index into list position. This is because index starts from 1. While the list element
-	 * starts from 0.
-	 * <p>
-	 * return index - 1;
-	 * 
-	 * @param index of matrix
-	 * @return list position
-	 */
-	private int positionOf(int index) {
-		return index - 1;
-	}
-
 	@Override
-	public ListHazelMatrixTreeNode<E> visitTopNode() {
+	public MatrixTreeNode<E> visitTopNode() {
 		// base case
 		if (parent == null)
 			return this;
@@ -238,20 +218,21 @@ public class ListHazelMatrixTreeNode<E extends Serializable> implements MutableM
 	}
 
 	@Override
-	public ListHazelMatrixTreeNode<E> remove(int childIndex) {
-		if (children.size() >= positionOf(childIndex))
+	public MapHazelMatrixTreeNode<E> remove(int childIndex) {
+		if (!children.containsKey(childIndex))
 			return null;
 
-		ListHazelMatrixTreeNode<E> removed = children.remove(positionOf(childIndex));
+		MapHazelMatrixTreeNode<E> removed = children.remove(childIndex);
 		removed.setParent(null);
 		return removed;
 	}
 
 	@Override
 	public boolean remove(MutableMatrixTreeNode<E> node) {
-		boolean result = children.remove(node);
+		// downcast is appropriate since children indexes are always int
+		MapHazelMatrixTreeNode<E> result = children.remove((int) node.getIndex());
 		node.setParent(null);
-		return result;
+		return result != null ? true : false;
 	}
 
 	@Override
@@ -270,7 +251,7 @@ public class ListHazelMatrixTreeNode<E extends Serializable> implements MutableM
 	public void setParent(MutableMatrixTreeNode<E> newParent) {
 
 		// this should only be for direct parents, there musn't be any relocation
-		this.parent = (ListHazelMatrixTreeNode<E>) newParent;
+		this.parent = (MapHazelMatrixTreeNode<E>) newParent;
 	}
 
 	@Override
@@ -283,7 +264,7 @@ public class ListHazelMatrixTreeNode<E extends Serializable> implements MutableM
 		String root = this.lineRepresentation();
 		// recursive case:
 		String indent = Strings.repeat("   ", depth);
-		for (ListHazelMatrixTreeNode<E> child : children)
+		for (MapHazelMatrixTreeNode<E> child : children.values())
 			root += indent + child.treeRepresentation(depth + 1);
 
 		return root;
