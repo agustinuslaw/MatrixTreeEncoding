@@ -7,7 +7,7 @@ import matrixtree.computation.ExactMatrixOp;
 import matrixtree.computation.MatrixOp;
 import matrixtree.model.HazelAncestors;
 import matrixtree.model.HazelTreePath;
-import matrixtree.model.NestedInterval;
+import matrixtree.model.RationalInterval;
 import matrixtree.model.Rational;
 
 /**
@@ -49,7 +49,7 @@ public class HazelPathMatrix extends BaseMatrix implements PathMatrix, StandardM
 	 *
 	 * @param i nested interval providing lower and upper bound
 	 */
-	public HazelPathMatrix(NestedInterval i) {
+	public HazelPathMatrix(RationalInterval i) {
 		// lower bound is node, upper bound is sibling
 		super(//
 				i.getLower().getNumerator(), i.getUpper().getNumerator(), //
@@ -61,8 +61,8 @@ public class HazelPathMatrix extends BaseMatrix implements PathMatrix, StandardM
 	}
 
 	@Override
-	public NestedInterval asNestedInterval() {
-		return new NestedInterval(this);
+	public RationalInterval asNestedInterval() {
+		return new RationalInterval(this);
 	}
 
 	@Override

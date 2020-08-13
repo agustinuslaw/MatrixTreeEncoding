@@ -8,8 +8,8 @@ import org.junit.jupiter.api.Test;
 public class NestedIntervalTest {
     @Test
     void parent() {
-        NestedInterval control = new HazelTreePath(2L, 7L, 5L).computePathMatrix().asNestedInterval();
-        NestedInterval node = new HazelTreePath(2L, 7L, 5L, 3L).computePathMatrix().asNestedInterval();
+        RationalInterval control = new HazelTreePath(2L, 7L, 5L).computePathMatrix().asNestedInterval();
+        RationalInterval node = new HazelTreePath(2L, 7L, 5L, 3L).computePathMatrix().asNestedInterval();
 
         assertTrue(control.supersetOf(node));
         assertTrue(control.contains(node));
@@ -19,8 +19,8 @@ public class NestedIntervalTest {
 
     @Test
     void self() {
-        NestedInterval control = new HazelTreePath(2L, 7L, 5L).computePathMatrix().asNestedInterval();
-        NestedInterval node = new HazelTreePath(2L, 7L, 5L).computePathMatrix().asNestedInterval();
+        RationalInterval control = new HazelTreePath(2L, 7L, 5L).computePathMatrix().asNestedInterval();
+        RationalInterval node = new HazelTreePath(2L, 7L, 5L).computePathMatrix().asNestedInterval();
 
         assertFalse(control.supersetOf(node));
         assertTrue(control.contains(node));
@@ -30,8 +30,8 @@ public class NestedIntervalTest {
 
     @Test
     void child() {
-        NestedInterval control = new HazelTreePath(2L, 7L, 5L, 1L).computePathMatrix().asNestedInterval();
-        NestedInterval node = new HazelTreePath(2L, 7L, 5L).computePathMatrix().asNestedInterval();
+        RationalInterval control = new HazelTreePath(2L, 7L, 5L, 1L).computePathMatrix().asNestedInterval();
+        RationalInterval node = new HazelTreePath(2L, 7L, 5L).computePathMatrix().asNestedInterval();
 
         assertFalse(control.supersetOf(node));
         assertFalse(control.contains(node));
@@ -41,8 +41,8 @@ public class NestedIntervalTest {
 
     @Test
     void exclusive() {
-        NestedInterval control = new HazelTreePath(2L, 8L, 5L).computePathMatrix().asNestedInterval();
-        NestedInterval node = new HazelTreePath(2L, 7L, 5L).computePathMatrix().asNestedInterval();
+        RationalInterval control = new HazelTreePath(2L, 8L, 5L).computePathMatrix().asNestedInterval();
+        RationalInterval node = new HazelTreePath(2L, 7L, 5L).computePathMatrix().asNestedInterval();
 
         assertFalse(control.supersetOf(node));
         assertFalse(control.contains(node));

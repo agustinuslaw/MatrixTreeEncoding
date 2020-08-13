@@ -6,7 +6,10 @@ import java.util.List;
 
 import matrixtree.matrices.HazelPathMatrix;
 import matrixtree.matrices.PathMatrix;
-
+/**
+ * Ancestors implementation of Hazel's matrices.
+ * @author Agustinus Lawandy
+ */
 public class HazelAncestors implements Ancestors {
 
 	private static final long serialVersionUID = 3330836727367707152L;

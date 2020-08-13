@@ -1,7 +1,7 @@
 package matrixtree.matrices;
 
 import matrixtree.model.Ancestors;
-import matrixtree.model.NestedInterval;
+import matrixtree.model.RationalInterval;
 
 /**
  * Path matrix P that represent a single path in the tree. <br>
@@ -37,7 +37,7 @@ public interface PathMatrix extends StandardMatrix, SimpleInvertible, Comparable
 	/**
 	 * @return Another representation of the matrix in the form of interval [x,y)
 	 */
-	NestedInterval asNestedInterval();
+	RationalInterval asNestedInterval();
 
 	/**
 	 * @return Compute the root matrix (matrix of the root node in the tree).

@@ -6,23 +6,23 @@ import java.util.Objects;
 import matrixtree.matrices.PathMatrix;
 
 /**
- * Represent an interval set.
+ * Represent a rational interval
  * 
  * @author Agustinus Lawandy
  *
  */
-public class NestedInterval {
+public class RationalInterval {
 	private Rational lower;
 	private Rational upper;
 	
 	private static final NumberFormat NF = NumberFormat.getInstance();
 
-	public NestedInterval(PathMatrix p) {
+	public RationalInterval(PathMatrix p) {
 		this.lower = new Rational(p.getNumerator(), p.getDenominator());
 		this.upper = new Rational(p.getSiblingNumerator(), p.getSiblingDenominator());
 	}
 
-	public NestedInterval(Rational lower, Rational upper) {
+	public RationalInterval(Rational lower, Rational upper) {
 		this.lower = lower;
 		this.upper = upper;
 	}
@@ -35,32 +35,33 @@ public class NestedInterval {
 		return upper;
 	}
 
-	public boolean contains(NestedInterval child) {
+	public boolean contains(RationalInterval child) {
 		return lower.lessOrEqualTo(child.lower) && upper.greaterOrEqualTo(child.upper);
 	}
 
-	public boolean mutuallyExclusiveWith(NestedInterval interval) {
+	public boolean mutuallyExclusiveWith(RationalInterval interval) {
 		return lower.greaterOrEqualTo(interval.upper) || upper.lessOrEqualTo(interval.lower);
 	}
 
-	public boolean subsetOf(NestedInterval parent) {
+	public boolean subsetOf(RationalInterval parent) {
 		return parent.lower.lessThan(this.lower) && parent.upper.greaterThan(this.upper);
 	}
 
-	public boolean supersetOf(NestedInterval child) {
+	public boolean supersetOf(RationalInterval child) {
 		return lower.lessThan(child.lower) && upper.greaterThan(child.upper);
-	}
-
-	public String toApproximateString() {
-		return "NestedInterval[" + lower.doubleValue() + ", " + upper.doubleValue() + ']';
 	}
 
 	@Override
 	public String toString() {
-		return "NestedInterval[" + lower + ", " + upper + ']';
+		return "RationalInterval[" + lower + ", " + upper + ']';
 	}
 
-	public String doubleStr(int precision) {
+	/**
+	 * Convenient method to represent this class as an approximate double string 
+	 * @param precision to represent the string
+	 * @return the string representation
+	 */
+	public String toDoubleStr(int precision) {
     	// [ a , b ) is the set a <= x < y
 		NF.setGroupingUsed(false);
     	NF.setMaximumFractionDigits(precision);
@@ -73,7 +74,7 @@ public class NestedInterval {
 			return true;
 		if (o == null || getClass() != o.getClass())
 			return false;
-		NestedInterval that = (NestedInterval) o;
+		RationalInterval that = (RationalInterval) o;
 		return Objects.equals(lower, that.lower) && Objects.equals(upper, that.upper);
 	}
 

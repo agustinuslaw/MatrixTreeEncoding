@@ -15,7 +15,7 @@ import org.apache.commons.math3.util.ArithmeticUtils;
  * larger number but without resorting to {@link BigInteger} as in
  * {@link BigFraction}.
  * 
- * @author agustinus lawandy
+ * @author Agustinus Lawandy
  */
 public class Rational extends Number implements Comparable<Rational>, Serializable {
 

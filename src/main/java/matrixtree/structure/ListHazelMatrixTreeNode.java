@@ -9,36 +9,37 @@ import java.util.stream.Collectors;
 
 import com.google.common.base.Strings;
 
-import matrixtree.exception.BadArgumentException;
 import matrixtree.matrices.HazelPathMatrix;
 import matrixtree.model.HazelAncestors;
 import matrixtree.model.HazelTreePath;
-import matrixtree.model.NestedInterval;
-import matrixtree.model.TreePath;
+import matrixtree.model.RationalInterval;
+import matrixtree.validation.Precondition;
 
 /**
- * List based matrix tree node rearranges automatically after remove and insert operations. Thus there are no gaps between indexes.
+ * List based matrix tree node rearranges automatically after remove and insert operations. Thus there are no gaps
+ * between indexes.
  * 
  * @author Agustinus Lawandy
  * @since 2020-08-09
  */
-public class OrderedHazelMatrixTreeNode<E extends Serializable> implements MutableMatrixTreeNode<E> {
+public class ListHazelMatrixTreeNode<E extends Serializable> implements MutableMatrixTreeNode<E> {
 
 	private static final long serialVersionUID = -2783094080814941618L;
 
 	// transient to prevent this being serialized, which will cause stackoverflow
-	// error
-	private transient OrderedHazelMatrixTreeNode<E> parent;
+	private transient ListHazelMatrixTreeNode<E> parent;
 
 	private E element;
 	private long index;
 	private HazelPathMatrix pathMatrix;
-	private NestedInterval interval;
-	private List<OrderedHazelMatrixTreeNode<E>> children;
+	private RationalInterval interval;
+	private List<ListHazelMatrixTreeNode<E>> children;
+	private Class<E> type;
 
-	private final transient Supplier<List<OrderedHazelMatrixTreeNode<E>>> supplier = ArrayList::new;
+	private final transient Supplier<List<ListHazelMatrixTreeNode<E>>> supplier = ArrayList::new;
 
-	public OrderedHazelMatrixTreeNode(OrderedHazelMatrixTreeNode<E> parent, E element, long index) {
+	@SuppressWarnings("unchecked")
+	public ListHazelMatrixTreeNode(ListHazelMatrixTreeNode<E> parent, E element, long index) {
 		super();
 
 		// simple setting
@@ -50,9 +51,11 @@ public class OrderedHazelMatrixTreeNode<E extends Serializable> implements Mutab
 		// compute other values
 		this.pathMatrix = computePathMatrix();
 		this.interval = pathMatrix.asNestedInterval();
+		this.type = (Class<E>) element.getClass();
 	}
 
-	public OrderedHazelMatrixTreeNode(OrderedHazelMatrixTreeNode<E> parent, E element, HazelPathMatrix matrix) {
+	@SuppressWarnings("unchecked")
+	public ListHazelMatrixTreeNode(ListHazelMatrixTreeNode<E> parent, E element, HazelPathMatrix matrix) {
 		super();
 
 		// simple setting
@@ -64,6 +67,20 @@ public class OrderedHazelMatrixTreeNode<E extends Serializable> implements Mutab
 
 		// compute other values
 		this.index = pathMatrix.computeIndex();
+		this.type = (Class<E>) element.getClass();
+	}
+
+	public RationalInterval getInterval() {
+		return interval;
+	}
+
+	@Override
+	public Class<E> getType() {
+		return type;
+	}
+
+	public Supplier<List<ListHazelMatrixTreeNode<E>>> getSupplier() {
+		return supplier;
 	}
 
 	@Override
@@ -105,16 +122,14 @@ public class OrderedHazelMatrixTreeNode<E extends Serializable> implements Mutab
 		if (getClass() != obj.getClass())
 			return false;
 		@SuppressWarnings("unchecked")
-		OrderedHazelMatrixTreeNode<E> other = (OrderedHazelMatrixTreeNode<E>) obj;
+		ListHazelMatrixTreeNode<E> other = (ListHazelMatrixTreeNode<E>) obj;
 		return Objects.equals(pathMatrix, other.pathMatrix);
 	}
 
 	@Override
-	public OrderedHazelMatrixTreeNode<E> getChildAt(int childIndex) {
-		if (childIndex <= 0) {
-			// When denominator == 1 : Reached top level already, division by 0 my occur
-			throw new BadArgumentException("childIndex", childIndex, "[1,Inf)");
-		}
+	public ListHazelMatrixTreeNode<E> getChildAt(int childIndex) {
+		// When denominator == 1 : Reached top level already, division by 0 my occur
+		Precondition.checkDomain(childIndex > 0, "childIndex", childIndex, "[1,Inf)");
 
 		// this downcast is appropriate since only root elements can be long
 		return children.get(positionOf(childIndex));
@@ -143,7 +158,7 @@ public class OrderedHazelMatrixTreeNode<E extends Serializable> implements Mutab
 	}
 
 	@Override
-	public OrderedHazelMatrixTreeNode<E> getParent() {
+	public ListHazelMatrixTreeNode<E> getParent() {
 		return parent;
 	}
 
@@ -158,7 +173,8 @@ public class OrderedHazelMatrixTreeNode<E extends Serializable> implements Mutab
 	}
 
 	/**
-	 * Converts between list position into matrix index. This is because index starts from 1. While the list element starts from 0
+	 * Converts between list position into matrix index. This is because index starts from 1. While the list element
+	 * starts from 0
 	 * <p>
 	 * return position + 1;
 	 * 
@@ -171,11 +187,11 @@ public class OrderedHazelMatrixTreeNode<E extends Serializable> implements Mutab
 
 	@Override
 	public MutableMatrixTreeNode<E> insert(MutableMatrixTreeNode<E> child) {
-		children.add((OrderedHazelMatrixTreeNode<E>) child);
+		children.add((ListHazelMatrixTreeNode<E>) child);
 		child.setParent(this);
 		return child;
 	}
-	
+
 	@Override
 	public MutableMatrixTreeNode<E> add(E childElement) {
 
@@ -184,31 +200,8 @@ public class OrderedHazelMatrixTreeNode<E extends Serializable> implements Mutab
 
 	@Override
 	public MutableMatrixTreeNode<E> insert(E childElement, int childIndex) {
-		OrderedHazelMatrixTreeNode<E> inserted = new OrderedHazelMatrixTreeNode<>(this, childElement, childIndex);
-
-		return buildTree(inserted);
-	}
-
-	@Override
-	public MutableMatrixTreeNode<E> buildTree(MutableMatrixTreeNode<E> childNode) {
-		// check if this node can contain childNode
-		if (!interval.contains(childNode.getPathMatrix().asNestedInterval()))
-			throw new IllegalArgumentException("Child interval " + childNode.getPathMatrix() + " is not contained in parent " + pathMatrix);
-
-		// get the parent of the child node if exist, if not throw an exception
-		OrderedHazelMatrixTreeNode<E> parentNode = parentOf(childNode);
-
-		// remove old child from parent
-		int childIndex = (int) childNode.getIndex();
-		if (!parentNode.isLeaf() && parentNode.getChildCount() > childIndex)
-			parentNode.remove(childIndex);
-		
-		// add the new child
-		parentNode.children.add(positionOf(childIndex), (OrderedHazelMatrixTreeNode<E>) childNode);
-
-		childNode.setParent(parentNode);
-
-		return childNode;
+		ListHazelMatrixTreeNode<E> inserted = new ListHazelMatrixTreeNode<>(this, childElement, childIndex);
+		return insert(inserted);
 	}
 
 	@Override
@@ -222,49 +215,8 @@ public class OrderedHazelMatrixTreeNode<E extends Serializable> implements Mutab
 	}
 
 	/**
-	 * @param childNode
-	 * @return the parent node of childNode if contained in this tree
-	 */
-	private OrderedHazelMatrixTreeNode<E> parentOf(MatrixTreeNode<E> childNode) {
-		// at this point child and node is guaranteed to share path/ancestors
-		TreePath childPath = childNode.computeAncestors().getTreePath();
-		TreePath nodePath = this.computeAncestors().getTreePath();
-
-		int depthDifference = childPath.depth() - nodePath.depth();
-
-		// get the parent of the child node if exist, if not throw an exception
-		OrderedHazelMatrixTreeNode<E> parentNode;
-		if (depthDifference <= 0) {
-			throw new IllegalArgumentException("Not a child element! Child " + childNode.getPathMatrix() + " This " + getPathMatrix());
-		} else if (depthDifference == 1) {
-			// direct insert
-			parentNode = this;
-		} else {
-			int depth = nodePath.depth();
-			int childParentDepth = childPath.depth() - 1;
-			int candidateParentIdx;
-			parentNode = null;
-			
-			while (depth < childParentDepth) {
-				candidateParentIdx = childPath.asList().get(depth).intValue();
-
-				if (positionOf(candidateParentIdx /* index */) >= getChildCount() /*pos*/ )
-					throw new IndexOutOfBoundsException("Ancestor nodes are not yet in place!");
-
-				parentNode = getChildAt(candidateParentIdx);
-
-				depth = depth + 1;
-			}
-		}
-
-		if (parentNode == null)
-			throw new NullPointerException("Parent node for " + childPath + " is not found!");
-
-		return parentNode;
-	}
-
-	/**
-	 * Converts between matrix index into list position. This is because index starts from 1. While the list element starts from 0.
+	 * Converts between matrix index into list position. This is because index starts from 1. While the list element
+	 * starts from 0.
 	 * <p>
 	 * return index - 1;
 	 * 
@@ -276,8 +228,21 @@ public class OrderedHazelMatrixTreeNode<E extends Serializable> implements Mutab
 	}
 
 	@Override
-	public OrderedHazelMatrixTreeNode<E> remove(int childIndex) {
-		OrderedHazelMatrixTreeNode<E> removed = children.remove(positionOf(childIndex));
+	public ListHazelMatrixTreeNode<E> visitTopNode() {
+		// base case
+		if (parent == null)
+			return this;
+		// recursive case
+		else
+			return parent.visitTopNode();
+	}
+
+	@Override
+	public ListHazelMatrixTreeNode<E> remove(int childIndex) {
+		if (children.size() >= positionOf(childIndex))
+			return null;
+
+		ListHazelMatrixTreeNode<E> removed = children.remove(positionOf(childIndex));
 		removed.setParent(null);
 		return removed;
 	}
@@ -306,13 +271,14 @@ public class OrderedHazelMatrixTreeNode<E extends Serializable> implements Mutab
 
 	@Override
 	public void setNodeElement(E element) {
-		this.element = element;
+		this.element = Objects.requireNonNull(element);
 	}
 
 	@Override
 	public void setParent(MutableMatrixTreeNode<E> newParent) {
+
 		// this should only be for direct parents, there musn't be any relocation
-		this.parent = (OrderedHazelMatrixTreeNode<E>) newParent;
+		this.parent = (ListHazelMatrixTreeNode<E>) newParent;
 	}
 
 	@Override
@@ -325,7 +291,7 @@ public class OrderedHazelMatrixTreeNode<E extends Serializable> implements Mutab
 		String root = this.lineRepresentation();
 		// recursive case:
 		String indent = Strings.repeat("   ", depth);
-		for (OrderedHazelMatrixTreeNode<E> child : children)
+		for (ListHazelMatrixTreeNode<E> child : children)
 			root += indent + child.treeRepresentation(depth + 1);
 
 		return root;
@@ -334,8 +300,8 @@ public class OrderedHazelMatrixTreeNode<E extends Serializable> implements Mutab
 	private String lineRepresentation() {
 		String parentRef = parent != null ? "exist" : "null";
 
-		return "Node{" + "elem:" + getElement() + ", " + "idx:" + getIndex() + ", " + "mat:" + getPathMatrix() + ", " + "interval:" + interval.doubleStr(4) + ", parentRef:"
-				+ parentRef + "}\n";
+		return "Node{" + "elem:" + getElement() + ", " + "idx:" + getIndex() + ", " + "mat:" + getPathMatrix() + ", "
+				+ "interval:" + interval.toDoubleStr(4) + ", parentRef:" + parentRef + "}\n";
 	}
 
 }

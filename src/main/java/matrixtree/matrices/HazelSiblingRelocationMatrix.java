@@ -1,6 +1,6 @@
 package matrixtree.matrices;
 
-import matrixtree.exception.BadArgumentException;
+import matrixtree.exception.BadDomainException;
 
 /**
  * Represent moving the node horizontally (across siblings) within the same depth.<br>
@@ -24,7 +24,7 @@ public class HazelSiblingRelocationMatrix extends BaseMatrix implements Standard
      * @param n the current position of node.
      * @param m the desired position of node.
      */
-    public HazelSiblingRelocationMatrix(long n, long m) throws BadArgumentException {
+    public HazelSiblingRelocationMatrix(long n, long m) throws BadDomainException {
         super(1 - (m - n), -(m - n), m - n, 1 + (m - n));
     }
 
@@ -34,7 +34,7 @@ public class HazelSiblingRelocationMatrix extends BaseMatrix implements Standard
      *
      * @param k steps of relocation distance, may be negative.
      */
-    public HazelSiblingRelocationMatrix(long k) throws BadArgumentException {
+    public HazelSiblingRelocationMatrix(long k) throws BadDomainException {
         super(1 - k, -k, k, 1 + k);
     }
 

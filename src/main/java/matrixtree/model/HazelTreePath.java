@@ -16,6 +16,8 @@ import matrixtree.matrices.HazelPathMatrix;
 import matrixtree.matrices.StandardMatrix;
 
 /**
+ * Tree path implementation for Hazel's matrices.
+ * 
  * @author Agustinus Lawandy
  */
 public class HazelTreePath implements TreePath {

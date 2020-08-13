@@ -2,11 +2,11 @@ package matrixtree.structure;
 
 import java.io.Serializable;
 
-import com.google.common.annotations.Beta;
-
 import matrixtree.matrices.PathMatrix;
 
 /**
+ * Represent modifiable tree structure.
+ * 
  * @author Agustinus Lawandy
  * @since 2020-08-09
  */
@@ -17,46 +17,51 @@ public interface MutableMatrixTreeNode<E extends Serializable> extends MatrixTre
 	PathMatrix computePathMatrix();
 
 	/**
-	 * Adds <code>child</code> to the receiver at the latest <code>index</code>.
-	 * <code>child</code> will be messaged with <code>setParent</code>.
+	 * Adds an element as a direct child to this node. With index one greater than the largest index.
+	 * 
+	 * @param childElement to add
+	 * @return the created and inserted node
 	 */
 	MutableMatrixTreeNode<E> add(E childElement);
 
 	/**
-	 * Adds <code>child</code> to the receiver at <code>index</code>.
-	 * <code>child</code> will be messaged with <code>setParent</code>.
+	 * Insert an element as a direct child to this node with a specified index. If there is already a child at
+	 * childIndex, it is overwritten.
+	 * 
+	 * @param childElement to add
+	 * @param childIndex   index of element
+	 * @return the created and inserted node
 	 */
 	MutableMatrixTreeNode<E> insert(E childElement, int childIndex);
 
 	/**
-	 * Insert child directly to parent.
-	 * @param child node
+	 * Insert child node directly to parent.
+	 * 
+	 * @param child node to add
 	 * @return reference to inserted child
 	 */
 	MutableMatrixTreeNode<E> insert(MutableMatrixTreeNode<E> child);
 
 	/**
-	 * Adds <code>child</code> to the receiver at <code>index</code>.
-	 * <code>child</code> will be messaged with <code>setParent</code>.
+	 * Remove direct children if exists. May return null if there is no child at index.
 	 * 
-	 * This feature is experimental!
-	 */
-	@Beta
-	MutableMatrixTreeNode<E> buildTree(MutableMatrixTreeNode<E> childNode);
-
-	/**
-	 * Removes the child at <code>index</code> from the receiver.
+	 * @param childIndex to be removed
+	 * @return the removed child or null.
 	 */
 	MutableMatrixTreeNode<E> remove(int childIndex);
 
 	/**
-	 * Removes <code>node</code> from the receiver. <code>setParent</code> will be
-	 * messaged on <code>node</code>.
+	 * Remove direct children if exists.
+	 * 
+	 * @param node to be removed
+	 * @return true if this list contained the specified element
 	 */
 	boolean remove(MutableMatrixTreeNode<E> node);
 
 	/**
-	 * Resets the user object of the receiver to <code>object</code>.
+	 * Change the element the node contains.
+	 * 
+	 * @param element the node contains.
 	 */
 	void setNodeElement(E element);
 
@@ -66,9 +71,8 @@ public interface MutableMatrixTreeNode<E extends Serializable> extends MatrixTre
 	void removeFromParent();
 
 	/**
-	 * Sets the parent of the receiver to <code>newParent</code>. index will be kept
-	 * the same. This should only be a simple parent set. The node must be a proper
-	 * parent (correct path matrix).
+	 * Sets the parent of the receiver to <code>newParent</code>. index will be kept the same. This should only be a
+	 * simple parent setting. The node must be a proper parent (correct path matrix).
 	 */
 	void setParent(MutableMatrixTreeNode<E> newParent);
 
