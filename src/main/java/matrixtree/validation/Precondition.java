@@ -3,7 +3,8 @@ package matrixtree.validation;
 import matrixtree.exception.BadDomainException;
 
 /**
- * This precondition takes inspiration from Guava Preconditions. Should be called before client calls to check the validity of the arguments.
+ * This precondition takes inspiration from Guava Preconditions. Should be called before client calls to check the
+ * validity of the arguments.
  * 
  * @author Agustinus Lawandy
  */
