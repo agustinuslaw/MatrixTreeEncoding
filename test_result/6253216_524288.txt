@@ -1,0 +1,107 @@
+TestTreeTableManager.getRowCount(HazelTree)
+Trees: 1000000
+Query: 524288
+Table Rows: 6253216
+
+ ----- Selection Comparison ----- 
+
+TestTreeTableManager.dropBoundIndexes:HazelTree
+	drop index if exists idx_hazeltree_lower on dbo.HazelTree;
+	drop index if exists idx_hazeltree_upper on dbo.HazelTree;
+TestTreeTableManager.selectMatrices:HazelTree for:524288
+	select child.*
+	from HazelTree child, HazelTree node   
+	where node.e11*child.e21 <= child.e11*node.e21
+	and child.e12*node.e22 <= node.e12*child.e22 
+	and node.name = '524288'  -- predicate uniquely identifying a node 
+SQLServerResultSet:2
+Query took: 427 milliseconds. 
+
+TestTreeTableManager.selectMatricesWithPrefilter:HazelTree for:524288
+	select child.*
+	from HazelTree child, HazelTree node 
+	-- approximate 
+	where child.e11/child.e21  
+	between node.e11/node.e21 and node.e12/node.e22
+	-- exact
+	and node.e11*child.e21 <= child.e11*node.e21 
+	and child.e12*node.e22 <= node.e12*child.e22 
+	-- predicate uniquely identifying a node 
+	and node.name = '524288';
+SQLServerResultSet:3
+Query took: 388 milliseconds. 
+
+TestTreeTableManager.createBoundIndexesForTestTable:HazelTree
+	create nonclustered index idx_hazeltree_lower on HazelTree (lower_bound asc);	create nonclustered index idx_hazeltree_upper on HazelTree (upper_bound asc);
+createBoundIndexesForTestTable() took 8304 ms
+TestTreeTableManager.selectMatricesWithIndexedColumn(String, String):HazelTree for:524288
+	select child.*
+	from HazelTree child, HazelTree node 
+	-- approximate for indexing
+	where child.lower_bound
+	between node.lower_bound and node.upper_bound
+	-- exact
+	and node.e11*child.e21 <= child.e11*node.e21 
+	and child.e12*node.e22 <= node.e12*child.e22 
+	-- predicate uniquely identifying a node 
+	and node.name = '524288';
+SQLServerResultSet:4
+Query took: 21 milliseconds. 
+
+TestTreeTableManager.selectCteRecursive:HazelTree for:524288
+	with _CTE (name, parent, number, e11, e21, e12, e22, depth)
+	as	(	
+	select name, parent, number, e11, e21, e12, e22, 1 from HazelTree 
+	where name = '524288'  -- predicate uniquely identifying a node as root
+		
+	union all
+	select child.name, child.parent, child.number, child.e11, child.e21, child.e12, child.e22, cte.depth+1 from _CTE cte
+	inner join HazelTree child on (cte.name = child.parent)
+	)
+	select name, number, depth 
+	from _CTE 
+	option(MAXRECURSION 50);
+SQLServerResultSet:5
+Query took: 23289 milliseconds. 
+
+
+ ----- Tree ----- 
+
+Queried Tree for name:524288
+524288.262144.131072.65536.32768
+524288.262144.131072.65536.32768.16384.8192.4096.2048.1024.512.256.128.2
+524288.262144.131072.65536.32768.16384.8192.4096.2048.1024.512.256.128.64.32.16.8.4.2
+524288.262144.131072.65536.32768.16384.8192.4096.2048.2
+524288.262144.131072.65536.32768.16384.8192.4096.2048.1024.2
+524288.262144.131072.65536.32768.16384.8192
+524288.262144.131072.65536.32768.16384.8192.4096.2048.1024.512
+524288.262144.131072.65536.32768.16384.8192.4096.2048.1024.512.256.128
+524288
+524288.262144.131072.65536.32768.16384.2
+524288.262144.131072.65536.32768.16384.8192.4096.2048.1024.512.256.2
+524288.262144.131072.65536.32768.16384.8192.4096.2048.1024.512.256.128.64.32.2
+524288.262144.131072.65536.32768.16384.8192.4096.2048.1024.512.256.128.64.32.16.2
+524288.262144.131072.65536.32768.16384.8192.4096.2048.1024.512.256.128.64.32.16.8.4.2a
+524288.262144.131072.65536.32768.16384.8192.4096.2048.1024.512.256.128.64.32.16.8.4
+524288.262144.131072.65536.2
+524288.262144.131072.65536.32768.16384.8192.4096.2048.1024.512.256.128.64.32.16.8.2
+524288.262144.131072.65536.32768.16384.8192.4096.2048.1024.512.256.128.64.32.16.8
+524288.262144.2
+524288.262144.131072.65536.32768.16384.8192.4096.2048
+524288.262144.131072.65536.32768.16384.8192.4096.2048.1024.512.2
+524288.262144.131072.65536.32768.16384.8192.4096
+524288.262144.131072.65536.32768.16384.8192.4096.2048.1024.512.256.128.64
+524288.262144
+524288.262144.131072.65536.32768.16384.8192.4096.2048.1024.512.256.128.64.32
+524288.262144.131072.65536.32768.2
+524288.262144.131072.65536.32768.16384.8192.2
+524288.262144.131072.2
+524288.262144.131072.65536.32768.16384.8192.4096.2
+524288.262144.131072.65536.32768.16384.8192.4096.2048.1024.512.256.128.64.2
+524288.262144.131072.65536.32768.16384.8192.4096.2048.1024.512.256.128.64.32.16
+524288.262144.131072.65536.32768.16384
+524288.2
+524288.262144.131072.65536.32768.16384.8192.4096.2048.1024
+524288.262144.131072.65536
+524288.262144.131072.65536.32768.16384.8192.4096.2048.1024.512.256
+524288.262144.131072

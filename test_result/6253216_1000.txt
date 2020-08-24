@@ -1,0 +1,81 @@
+TestTreeTableManager.getRowCount(HazelTree)
+Trees: 1000000
+Query: 1000
+Table Rows: 6253216
+
+ ----- Selection Comparison ----- 
+
+TestTreeTableManager.dropBoundIndexes:HazelTree
+	drop index if exists idx_hazeltree_lower on dbo.HazelTree;
+	drop index if exists idx_hazeltree_upper on dbo.HazelTree;
+TestTreeTableManager.selectMatrices:HazelTree for:1000
+	select child.*
+	from HazelTree child, HazelTree node   
+	where node.e11*child.e21 <= child.e11*node.e21
+	and child.e12*node.e22 <= node.e12*child.e22 
+	and node.name = '1000'  -- predicate uniquely identifying a node 
+SQLServerResultSet:2
+Query took: 449 milliseconds. 
+
+TestTreeTableManager.selectMatricesWithPrefilter:HazelTree for:1000
+	select child.*
+	from HazelTree child, HazelTree node 
+	-- approximate 
+	where child.e11/child.e21  
+	between node.e11/node.e21 and node.e12/node.e22
+	-- exact
+	and node.e11*child.e21 <= child.e11*node.e21 
+	and child.e12*node.e22 <= node.e12*child.e22 
+	-- predicate uniquely identifying a node 
+	and node.name = '1000';
+SQLServerResultSet:3
+Query took: 455 milliseconds. 
+
+TestTreeTableManager.createBoundIndexesForTestTable:HazelTree
+	create nonclustered index idx_hazeltree_lower on HazelTree (lower_bound asc);	create nonclustered index idx_hazeltree_upper on HazelTree (upper_bound asc);
+createBoundIndexesForTestTable() took 8395 ms
+TestTreeTableManager.selectMatricesWithIndexedColumn(String, String):HazelTree for:1000
+	select child.*
+	from HazelTree child, HazelTree node 
+	-- approximate for indexing
+	where child.lower_bound
+	between node.lower_bound and node.upper_bound
+	-- exact
+	and node.e11*child.e21 <= child.e11*node.e21 
+	and child.e12*node.e22 <= node.e12*child.e22 
+	-- predicate uniquely identifying a node 
+	and node.name = '1000';
+SQLServerResultSet:4
+Query took: 21 milliseconds. 
+
+TestTreeTableManager.selectCteRecursive:HazelTree for:1000
+	with _CTE (name, parent, number, e11, e21, e12, e22, depth)
+	as	(	
+	select name, parent, number, e11, e21, e12, e22, 1 from HazelTree 
+	where name = '1000'  -- predicate uniquely identifying a node as root
+		
+	union all
+	select child.name, child.parent, child.number, child.e11, child.e21, child.e12, child.e22, cte.depth+1 from _CTE cte
+	inner join HazelTree child on (cte.name = child.parent)
+	)
+	select name, number, depth 
+	from _CTE 
+	option(MAXRECURSION 50);
+SQLServerResultSet:5
+Query took: 23584 milliseconds. 
+
+
+ ----- Tree ----- 
+
+Queried Tree for name:1000
+1000.500
+1000.500.250.125.5
+1000.500.250.125
+1000.500.250.2
+1000.500.250.125.25.5a
+1000
+1000.500.250
+1000.500.250.125.25.5
+1000.2
+1000.500.2
+1000.500.250.125.25
