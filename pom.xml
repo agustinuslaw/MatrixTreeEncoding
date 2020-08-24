@@ -38,21 +38,28 @@
 			<version>29.0-jre</version>
 		</dependency>
 
-		<!--SQL Server JDBC -->
+		<!-- Testing -->
+
 		<!-- https://mvnrepository.com/artifact/com.microsoft.sqlserver/mssql-jdbc -->
 		<dependency>
 			<groupId>com.microsoft.sqlserver</groupId>
 			<artifactId>mssql-jdbc</artifactId>
 			<version>8.4.0.jre8</version>
+			<scope>test</scope>
 		</dependency>
 
-		<!-- For SQL Server bulk insert -->
 		<dependency>
 			<groupId>de.bytefish</groupId>
 			<artifactId>jsqlserverbulkinsert</artifactId>
 			<version>3.0.0</version>
-			<type>jar</type>
-			<scope>compile</scope>
+			<scope>test</scope>
+		</dependency>
+
+		<dependency>
+			<groupId>com.google.code.gson</groupId>
+			<artifactId>gson</artifactId>
+			<version>2.8.6</version>
+			<scope>test</scope>
 		</dependency>
 	</dependencies>
 </project>

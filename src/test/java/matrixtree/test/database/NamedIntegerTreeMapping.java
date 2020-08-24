@@ -7,6 +7,12 @@ import de.bytefish.jsqlserverbulkinsert.mapping.AbstractMapping;
 import matrixtree.structure.MatrixTreeNode;
 import matrixtree.test.model.NamedInteger;
 
+/**
+ * Mapping to enable rapid insertion for SQL Server Bulk Copy feature.
+ * 
+ * @author Agustinus Lawandy
+ * @since 2020-08-24
+ */
 public class NamedIntegerTreeMapping extends AbstractMapping<MatrixTreeNode<NamedInteger>> {
 	/*
 	 * name nvarchar(64) primary key,-- name containing the path

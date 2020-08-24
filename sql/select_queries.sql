@@ -18,13 +18,45 @@ from _CTE
 option(MAXRECURSION 50); -- limit recursion to avoid infinite recursion
 set statistics time off;
 
-/* 2. single query */
+/* 2. matrix query */
 set statistics time on;
 
-select child.*, child.e11/child.e21*1.0 as lft, child.e12/child.e22*1.0 as rgt
-from HazelTreeSmall child, HazelTreeSmall node
-where node.e11/node.e21*1.0 /*root.lft*/ <= child.e11/child.e21*1.0 /*lft*/ 
-and child.e12/child.e22*1.0 /*rgt*/ <= node.e12/node.e22*1.0 /*root.rgt*/
+select child.*
+from HazelTreeSmall child, HazelTreeSmall node   
+where node.e11*child.e21 <= child.e11*node.e21
+and child.e12*node.e22 <= node.e12*child.e22 
 and node.name = @name  -- predicate uniquely identifying a node 
+
+set statistics time off;
+
+/* 3. matrix query with pre filter (no indexing needed) */
+set statistics time on;
+
+select child.*
+from %1$s child, %1$s node 
+-- approximate 
+where child.e11/child.e21  
+between node.e11/node.e21 and node.e12/node.e22
+-- exact
+and node.e11*child.e21 <= child.e11*node.e21 
+and child.e12*node.e22 <= node.e12*child.e22 
+-- predicate uniquely identifying a node 
+and node.name = '%2$s';
+
+set statistics time off;
+
+/* 4. matrix query with computed indexed column */
+set statistics time on;
+
+select child.*
+from %1$s child, %1$s node 
+-- approximate for indexing
+where child.lower_bound
+between node.lower_bound and node.upper_bound
+-- exact
+and node.e11*child.e21 <= child.e11*node.e21 
+and child.e12*node.e22 <= node.e12*child.e22 
+-- predicate uniquely identifying a node 
+and node.name = '%2$s';
 
 set statistics time off;

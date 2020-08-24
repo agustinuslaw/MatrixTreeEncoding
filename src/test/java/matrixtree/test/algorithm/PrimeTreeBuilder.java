@@ -32,7 +32,7 @@ public class PrimeTreeBuilder {
 		}
 
 		System.out.println("PrimeTreeBuilder.buildBinariesAsSet(" + from + "->" + to + ")" + " took "
-				+ treeGenStowatch.elapsed(TimeUnit.SECONDS) + " sec");
+				+ treeGenStowatch.elapsed(TimeUnit.MILLISECONDS) + " ms");
 
 		return set;
 	}

@@ -3,6 +3,12 @@ package matrixtree.test.algorithm;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Efficient factorization scheme using memory.
+ * 
+ * @author Agustinus Lawandy
+ * @since 2020-08-24
+ */
 public class SieveFactorization {
 
 	final int maxn;
