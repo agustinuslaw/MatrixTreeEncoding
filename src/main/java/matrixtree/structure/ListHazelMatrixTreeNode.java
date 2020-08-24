@@ -10,14 +10,13 @@ import java.util.stream.Collectors;
 import com.google.common.base.Strings;
 
 import matrixtree.matrices.HazelPathMatrix;
-import matrixtree.model.HazelAncestors;
 import matrixtree.model.HazelTreePath;
 import matrixtree.model.RationalInterval;
 import matrixtree.validation.Precondition;
 
 /**
- * List based matrix tree node rearranges automatically after remove and insert operations. Thus there are no gaps
- * between indexes.
+ * List based matrix tree node rearranges automatically after remove and insert
+ * operations. Thus there are no gaps between indexes.
  * 
  * @author Agustinus Lawandy
  * @since 2020-08-09
@@ -70,6 +69,7 @@ public class ListHazelMatrixTreeNode<E extends Serializable> implements MutableM
 		this.type = (Class<E>) element.getClass();
 	}
 
+	@Override
 	public RationalInterval getInterval() {
 		return interval;
 	}
@@ -81,16 +81,6 @@ public class ListHazelMatrixTreeNode<E extends Serializable> implements MutableM
 
 	public Supplier<List<ListHazelMatrixTreeNode<E>>> getSupplier() {
 		return supplier;
-	}
-
-	@Override
-	public int compareTo(MatrixTreeNode<E> o) {
-		return getPathMatrix().compareTo(o.getPathMatrix());
-	}
-
-	@Override
-	public HazelAncestors computeAncestors() {
-		return getPathMatrix().computeAncestors();
 	}
 
 	@Override
@@ -106,11 +96,6 @@ public class ListHazelMatrixTreeNode<E extends Serializable> implements MutableM
 			// if there is already a path matrix and no use case fits.
 			return pathMatrix;
 		}
-	}
-
-	@Override
-	public HazelTreePath computeTreePath() {
-		return computeAncestors().getTreePath();
 	}
 
 	@Override
@@ -142,9 +127,7 @@ public class ListHazelMatrixTreeNode<E extends Serializable> implements MutableM
 
 	public List<MatrixTreeNode<E>> getChildren() {
 		// safety copy to avoid aliasing error
-		return children.stream()//
-				.map(e -> ((MatrixTreeNode<E>) e))//
-				.collect(Collectors.toList());
+		return children.stream().collect(Collectors.toList());
 	}
 
 	@Override
@@ -173,8 +156,8 @@ public class ListHazelMatrixTreeNode<E extends Serializable> implements MutableM
 	}
 
 	/**
-	 * Converts between list position into matrix index. This is because index starts from 1. While the list element
-	 * starts from 0
+	 * Converts between list position into matrix index. This is because index
+	 * starts from 1. While the list element starts from 0
 	 * <p>
 	 * return position + 1;
 	 * 
@@ -204,19 +187,9 @@ public class ListHazelMatrixTreeNode<E extends Serializable> implements MutableM
 		return insert(inserted);
 	}
 
-	@Override
-	public boolean isLeaf() {
-		return children.isEmpty();
-	}
-
-	@Override
-	public boolean isRoot() {
-		return parent == null && pathMatrix.isRoot();
-	}
-
 	/**
-	 * Converts between matrix index into list position. This is because index starts from 1. While the list element
-	 * starts from 0.
+	 * Converts between matrix index into list position. This is because index
+	 * starts from 1. While the list element starts from 0.
 	 * <p>
 	 * return index - 1;
 	 * 
@@ -225,16 +198,6 @@ public class ListHazelMatrixTreeNode<E extends Serializable> implements MutableM
 	 */
 	private int positionOf(int index) {
 		return index - 1;
-	}
-
-	@Override
-	public ListHazelMatrixTreeNode<E> visitTopNode() {
-		// base case
-		if (parent == null)
-			return this;
-		// recursive case
-		else
-			return parent.visitTopNode();
 	}
 
 	@Override
@@ -280,20 +243,15 @@ public class ListHazelMatrixTreeNode<E extends Serializable> implements MutableM
 
 	private String treeRepresentation(int depth) {
 		// base case:
-		String root = this.lineRepresentation();
+		StringBuilder rootBuilder = new StringBuilder(lineRepresentation());
 		// recursive case:
-		String indent = Strings.repeat("   ", depth);
-		for (ListHazelMatrixTreeNode<E> child : children)
-			root += indent + child.treeRepresentation(depth + 1);
+		String indent = Strings.repeat("  ", depth);
+		for (ListHazelMatrixTreeNode<E> child : children) {
+			rootBuilder.append(indent);
+			rootBuilder.append(child.treeRepresentation(depth + 1));
+		}
 
-		return root;
-	}
-
-	private String lineRepresentation() {
-		String parentRef = parent != null ? "exist" : "null";
-
-		return "Node{" + "elem:" + getElement() + ", " + "idx:" + getIndex() + ", " + "mat:" + getPathMatrix() + ", "
-				+ "interval:" + interval.toDoubleStr(4) + ", parentRef:" + parentRef + "}\n";
+		return rootBuilder.toString();
 	}
 
 }

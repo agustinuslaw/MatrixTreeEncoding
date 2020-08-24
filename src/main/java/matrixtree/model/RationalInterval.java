@@ -1,5 +1,6 @@
 package matrixtree.model;
 
+import java.io.Serializable;
 import java.text.NumberFormat;
 import java.util.Objects;
 
@@ -11,7 +12,8 @@ import matrixtree.matrices.PathMatrix;
  * @author Agustinus Lawandy
  *
  */
-public class RationalInterval {
+public class RationalInterval implements Serializable {
+	private static final long serialVersionUID = -3506796261314851479L;
 	private Rational lower;
 	private Rational upper;
 	

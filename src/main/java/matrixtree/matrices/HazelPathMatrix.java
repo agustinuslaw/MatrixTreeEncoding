@@ -1,5 +1,7 @@
 package matrixtree.matrices;
 
+import static matrixtree.validation.Verification.verify;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -7,8 +9,8 @@ import matrixtree.computation.ExactMatrixOp;
 import matrixtree.computation.MatrixOp;
 import matrixtree.model.HazelAncestors;
 import matrixtree.model.HazelTreePath;
-import matrixtree.model.RationalInterval;
 import matrixtree.model.Rational;
+import matrixtree.model.RationalInterval;
 
 /**
  * Hazel scheme Path matrix P that represent a single path in the tree. Note for
@@ -22,13 +24,24 @@ public class HazelPathMatrix extends BaseMatrix implements PathMatrix, StandardM
 
 	private static final long serialVersionUID = 4792910434082808474L;
 
+	/**
+	 * Initialize {@link HazelPathMatrix} with individual element.
+	 *
+	 * @param numerator          (e11) node numerator
+	 * @param siblingNumerator   (e12) node sibling numerator
+	 * @param denominator        (e21) node denominator
+	 * @param siblingDenominator (e22) node sibling denominator
+	 */
 	public HazelPathMatrix(double numerator, double siblingNumerator, double denominator, double siblingDenominator) {
-		// a11, a12, a21, a22
-		super((long) numerator, (long) siblingNumerator, (long) denominator, (long) siblingDenominator);
+		super((long) /* e11 */numerator, (long) /* e12 */siblingNumerator, //
+				(long) /* e21 */denominator, (long) /* e22 */siblingDenominator);
+		verifyDomain();
+
 	}
 
 	public HazelPathMatrix(HazelPathMatrix parent, long index) {
 		super(parent.multiply(new HazelNodeMatrix(index)));
+		verifyDomain();
 	}
 
 	/**
@@ -40,8 +53,8 @@ public class HazelPathMatrix extends BaseMatrix implements PathMatrix, StandardM
 	 * @param siblingDenominator (e22) node sibling denominator
 	 */
 	public HazelPathMatrix(long numerator, long siblingNumerator, long denominator, long siblingDenominator) {
-		// a11, a12, a21, a22
-		super(numerator, siblingNumerator, denominator, siblingDenominator);
+		super(/* e11 */numerator, /* e12 */siblingNumerator, /* e21 */denominator, /* e22 */siblingDenominator);
+		verifyDomain();
 	}
 
 	/**
@@ -54,10 +67,23 @@ public class HazelPathMatrix extends BaseMatrix implements PathMatrix, StandardM
 		super(//
 				i.getLower().getNumerator(), i.getUpper().getNumerator(), //
 				i.getLower().getDenominator(), i.getUpper().getDenominator());
+		verifyDomain();
 	}
 
 	public HazelPathMatrix(StandardMatrix other) {
 		super(other);
+		verifyDomain();
+	}
+
+	private void verifyDomain() {
+		verify(getE11() > 0, String.format("e11[%s] (num) > 0 violated!", getE11()));
+		verify(getE12() > 0, String.format("e12[%s] (sibling num) > 0 violated!", getE12()));
+		verify(getE21() > 0, String.format("e21[%s] (denom) > 0 violated!", getE21()));
+		verify(getE22() > 0, String.format("e22[%s] (sibling denom) > 0 violated!", getE22()));
+		verify(getNumerator() > getDenominator(),
+				String.format("e11[%s] (num) > e21[%s] (denom)", getNumerator(), getDenominator()));
+		verify(getSiblingNumerator() > getSiblingDenominator(), String.format(
+				"e12[%s] (sibling num) > e22[%s] (sibling denom)", getSiblingNumerator(), getSiblingDenominator()));
 	}
 
 	@Override
@@ -76,7 +102,7 @@ public class HazelPathMatrix extends BaseMatrix implements PathMatrix, StandardM
 	@Override
 	public HazelAncestors computeAncestors() {
 		// Refer algorithm to Hazel's paper.
-		
+
 		long numerator = getNumerator();
 		long denominator = getDenominator();
 
@@ -126,11 +152,10 @@ public class HazelPathMatrix extends BaseMatrix implements PathMatrix, StandardM
 
 	@Override
 	public long computeIndex() {
-		if (isRoot())
-		{
+		if (isRoot()) {
 			return getNumerator();
 		}
-		
+
 		PathMatrix parent = this.computeParentMatrix();
 		// P N = C -> N = inv(P) C
 		StandardMatrix node = parent.invert().multiply(this);

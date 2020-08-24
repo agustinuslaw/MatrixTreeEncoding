@@ -1,0 +1,1 @@
+/* SQL Server */drop index if exists idx_hazel_left on dbo.HazelTree;drop index if exists idx_hazel_right on dbo.HazelTree;drop table if exists dbo.HazelTree;

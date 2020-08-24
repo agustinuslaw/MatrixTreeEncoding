@@ -38,5 +38,21 @@
 			<version>29.0-jre</version>
 		</dependency>
 
+		<!--SQL Server JDBC -->
+		<!-- https://mvnrepository.com/artifact/com.microsoft.sqlserver/mssql-jdbc -->
+		<dependency>
+			<groupId>com.microsoft.sqlserver</groupId>
+			<artifactId>mssql-jdbc</artifactId>
+			<version>8.4.0.jre8</version>
+		</dependency>
+
+		<!-- For SQL Server bulk insert -->
+		<dependency>
+			<groupId>de.bytefish</groupId>
+			<artifactId>jsqlserverbulkinsert</artifactId>
+			<version>3.0.0</version>
+			<type>jar</type>
+			<scope>compile</scope>
+		</dependency>
 	</dependencies>
 </project>

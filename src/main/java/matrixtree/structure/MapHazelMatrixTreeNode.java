@@ -11,13 +11,13 @@ import java.util.stream.Collectors;
 import com.google.common.base.Strings;
 
 import matrixtree.matrices.HazelPathMatrix;
-import matrixtree.model.HazelAncestors;
 import matrixtree.model.HazelTreePath;
 import matrixtree.model.RationalInterval;
 import matrixtree.validation.Precondition;
 
 /**
- * Map based matrix tree node. Gaps may occur between indexes. No reordering will be done.
+ * Map based matrix tree node. Gaps may occur between indexes. No reordering
+ * will be done.
  * 
  * @author Agustinus Lawandy
  *
@@ -85,16 +85,6 @@ public class MapHazelMatrixTreeNode<E extends Serializable> implements MutableMa
 	}
 
 	@Override
-	public int compareTo(MatrixTreeNode<E> o) {
-		return getPathMatrix().compareTo(o.getPathMatrix());
-	}
-
-	@Override
-	public HazelAncestors computeAncestors() {
-		return getPathMatrix().computeAncestors();
-	}
-
-	@Override
 	public HazelPathMatrix computePathMatrix() {
 		if (parent != null) {
 			// recompute path matrix depending on parent
@@ -107,11 +97,6 @@ public class MapHazelMatrixTreeNode<E extends Serializable> implements MutableMa
 			// if there is already a path matrix and no use case fits.
 			return pathMatrix;
 		}
-	}
-
-	@Override
-	public HazelTreePath computeTreePath() {
-		return computeAncestors().getTreePath();
 	}
 
 	@Override
@@ -142,10 +127,9 @@ public class MapHazelMatrixTreeNode<E extends Serializable> implements MutableMa
 		return children.size();
 	}
 
-	@SuppressWarnings("unchecked")
 	public Set<MatrixTreeNode<E>> getChildren() {
 		// safety copy to avoid aliasing error
-		return children.values().stream().map(n -> (MatrixTreeNode<E>) children).collect(Collectors.toSet());
+		return children.values().stream().collect(Collectors.toSet());
 	}
 
 	@Override
@@ -198,26 +182,6 @@ public class MapHazelMatrixTreeNode<E extends Serializable> implements MutableMa
 	}
 
 	@Override
-	public boolean isLeaf() {
-		return children.isEmpty();
-	}
-
-	@Override
-	public boolean isRoot() {
-		return parent == null && pathMatrix.isRoot();
-	}
-
-	@Override
-	public MatrixTreeNode<E> visitTopNode() {
-		// base case
-		if (parent == null)
-			return this;
-		// recursive case
-		else
-			return parent.visitTopNode();
-	}
-
-	@Override
 	public MapHazelMatrixTreeNode<E> remove(int childIndex) {
 		if (!children.containsKey(childIndex))
 			return null;
@@ -232,7 +196,7 @@ public class MapHazelMatrixTreeNode<E extends Serializable> implements MutableMa
 		// downcast is appropriate since children indexes are always int
 		MapHazelMatrixTreeNode<E> result = children.remove((int) node.getIndex());
 		node.setParent(null);
-		return result != null ? true : false;
+		return result != null;
 	}
 
 	@Override
@@ -261,20 +225,14 @@ public class MapHazelMatrixTreeNode<E extends Serializable> implements MutableMa
 
 	private String treeRepresentation(int depth) {
 		// base case:
-		String root = this.lineRepresentation();
+		StringBuilder rootBuilder = new StringBuilder(this.lineRepresentation());
 		// recursive case:
-		String indent = Strings.repeat("   ", depth);
-		for (MapHazelMatrixTreeNode<E> child : children.values())
-			root += indent + child.treeRepresentation(depth + 1);
+		String indent = Strings.repeat("  ", depth);
+		for (MapHazelMatrixTreeNode<E> child : children.values()) {
+			rootBuilder.append(indent);
+			rootBuilder.append(child.treeRepresentation(depth + 1));
+		}
 
-		return root;
+		return rootBuilder.toString();
 	}
-
-	private String lineRepresentation() {
-		String parentRef = parent != null ? "exist" : "null";
-
-		return "Node{" + "elem:" + getElement() + ", " + "idx:" + getIndex() + ", " + "mat:" + getPathMatrix() + ", "
-				+ "interval:" + interval.toDoubleStr(4) + ", parentRef:" + parentRef + "}\n";
-	}
-
 }
