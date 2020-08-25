@@ -7,7 +7,7 @@ set statistics time on;
 
 with _CTE (name, parent, number, e11, e21, e12, e22, depth)
 as	(	
-	select name, parent, number, e11, e21, e12, e22, 1 from HazelTreeSmall 
+	select name, parent, number, e11, e21, e12, e22, 1 from HazelTree 
 	-- predicate uniquely identifying a node as root
 	where name = @name  
 		
@@ -17,6 +17,7 @@ as	(
 	)
 select name, number, e11/e21*1.0 as lft, e12/e22*1.0 as rgt, depth 
 from _CTE 
+order by name
 -- limit recursion to avoid infinite recursion
 option(MAXRECURSION 50); 
 

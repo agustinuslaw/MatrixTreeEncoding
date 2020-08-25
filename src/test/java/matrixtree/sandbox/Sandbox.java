@@ -24,12 +24,12 @@ class Sandbox {
 	void testDatabase() throws SQLException {
 		String table = "HazelTree";
 		String tableView = "HazelTreeView";
-		int trees = 2000000;
+		int trees = 3000000;
 		String name = "131072";
 
 		System.out.println("\n ----- Create Data ----- \n");
 		int count = TestTreeTableManager.getRowCount(table);
-		int prevTrees = TestTreeTableManager.getTrees(tableView);
+		int prevTrees = TestTreeTableManager.getTreeCount(tableView);
 
 		if (prevTrees < trees) {
 //			TestTreeTableManager.dropTable(table);
@@ -67,9 +67,9 @@ class Sandbox {
 
 		/* assert */
 		// all method should be equal
-		assertEquals(mat.names, matComputedIndexApprox.names);
 		assertEquals(mat.names, matComputedIndex.names);
 		assertEquals(mat.names, cte.names);
+		assertEquals(mat.names, matComputedIndexApprox.names);
 		// should countain a result
 		assertFalse(mat.names.isEmpty());
 

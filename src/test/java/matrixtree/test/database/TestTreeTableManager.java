@@ -85,8 +85,7 @@ public class TestTreeTableManager {
 	public static void createNameIndexesForTestTable(String table) throws SQLException {
 		System.out.println("TestTreeTableManager.createNameIndexesForTestTable:" + table);
 		String query = String.format(
-				"	create nonclustered index idx_%2$s_name on %1$s ( name asc);\r\n"
-						+ "	create nonclustered index idx_%2$s_parent on %1$s ( parent asc);",
+				"	create nonclustered index idx_%2$s_parent on %1$s ( parent asc);",
 				table, table.toLowerCase());
 		execute(query);
 	}
@@ -241,7 +240,7 @@ public class TestTreeTableManager {
 			NamedIntegerTreeMapping mapping = new NamedIntegerTreeMapping(table);
 
 			// first batch from 3 -> delta
-			final int delta = 500000;
+			final int delta = 250000;
 			int firstStep = Math.min(min + delta, max);
 			set = PrimeTreeBuilder.buildPrimeBinaryTreesAsSet(min, firstStep);
 			bulkInsert(connection, table, set.iterator(), mapping);
@@ -339,6 +338,7 @@ public class TestTreeTableManager {
 		try (Statement s = connection.createStatement();
 				ResultSet r = s.executeQuery("select count(*) as total from " + table);) {
 			r.next();
+			System.out.println("TestTreeTableManager.getRowCount: " + r.getInt("total"));
 			return r.getInt("total");
 		}
 	}
@@ -351,12 +351,13 @@ public class TestTreeTableManager {
 	}
 
 	// select max(upper) as trees from HazelTreeView;
-	public static int getTrees(String tableView) throws SQLException {
-		System.out.println("TestTreeTableManager.getRowCount(" + tableView + ")");
+	public static int getTreeCount(String tableView) throws SQLException {
+		System.out.println("TestTreeTableManager.getTrees(" + tableView + ")");
 		try (Connection connection = DriverManager.getConnection(url);
 				Statement s = connection.createStatement();
 				ResultSet r = s.executeQuery("select max(upper) as totalTrees from " + tableView);) {
 			r.next();
+			System.out.println("TestTreeTableManager.getTrees: " + r.getInt("totalTrees"));
 			return r.getInt("totalTrees");
 		}
 	}
