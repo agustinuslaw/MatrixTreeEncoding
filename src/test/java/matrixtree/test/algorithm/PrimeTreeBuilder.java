@@ -21,8 +21,8 @@ import matrixtree.test.model.NamedInteger;
  */
 public class PrimeTreeBuilder {
 
-	public static Set<MatrixTreeNode<NamedInteger>> buildBinariesAsSet(int from, int to) {
-		System.out.println("PrimeTreeBuilder.buildBinariesAsSet(" + from + "->" + to + ") started");
+	public static Set<MatrixTreeNode<NamedInteger>> buildPrimeBinaryTreesAsSet(int from, int to) {
+		System.out.println("PrimeTreeBuilder.buildPrimeBinaryTreesAsSet(" + from + "->" + to + ") started");
 		Stopwatch treeGenStowatch = Stopwatch.createStarted();
 
 		SieveFactorization sieve = new SieveFactorization(to);
@@ -31,7 +31,7 @@ public class PrimeTreeBuilder {
 			set.addAll(buildBinaryAsSet(i, sieve.factorize(i)));
 		}
 
-		System.out.println("PrimeTreeBuilder.buildBinariesAsSet(" + from + "->" + to + ")" + " took "
+		System.out.println("PrimeTreeBuilder.buildPrimeBinaryTreesAsSet(" + from + "->" + to + ")" + " took "
 				+ treeGenStowatch.elapsed(TimeUnit.MILLISECONDS) + " ms");
 
 		return set;

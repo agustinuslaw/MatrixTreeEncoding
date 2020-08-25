@@ -1,0 +1,109 @@
+
+ ----- Create Data ----- 
+
+TestTreeTableManager.getRowCount(HazelTree)
+TestTreeTableManager.generateAndInsertBinaryTrees(HazelTree, 2500000)
+PrimeTreeBuilder.buildPrimeBinaryTreesAsSet(2100000->2500000) started
+PrimeTreeBuilder.buildPrimeBinaryTreesAsSet(2100000->2500000) took 64911 ms
+TestTreeTableManager.bulkInsert(HazelTree) started
+TestTreeTableManager.bulkInsert() took 167654 ms
+TestTreeTableManager.generateAndInsertBinaryTrees() added 2606316 rows with total: 15965958
+
+ ----- Selection Comparison ----- 
+
+TestTreeTableManager.selectCteRecursive:HazelTree for:131072
+	with _CTE (name, parent, number, e11, e21, e12, e22, depth)
+	as	(	
+	select name, parent, number, e11, e21, e12, e22, 1 from HazelTree 
+	where name = '131072'  -- predicate uniquely identifying a node as root
+		
+	union all
+	select child.name, child.parent, child.number, child.e11, child.e21, child.e12, child.e22, cte.depth+1 from _CTE cte
+	inner join HazelTree child on (cte.name = child.parent)
+	)
+	select name, number, depth 
+	from _CTE 
+	option(MAXRECURSION 50);
+SQLServerResultSet:6
+Query took: 66299 milliseconds. 
+
+TestTreeTableManager.selectMatrices:HazelTree for:131072
+	select child.*
+	from HazelTree child, HazelTree node   
+	where node.e11*child.e21 <= child.e11*node.e21
+	and child.e12*node.e22 <= node.e12*child.e22 
+	and node.name = '131072'  -- predicate uniquely identifying a node 
+SQLServerResultSet:7
+Query took: 5515 milliseconds. 
+
+TestTreeTableManager.selectMatricesWithIndexedColumn(String, String):HazelTreeView for:131072
+	select child.*
+	from HazelTreeView child, HazelTreeView node 
+	-- approximate for indexing
+	where child.lower
+	between node.lower and node.upper
+	-- exact
+	and node.e11*child.e21 <= child.e11*node.e21 
+	and child.e12*node.e22 <= node.e12*child.e22 
+	-- predicate uniquely identifying a node 
+	and node.name = '131072';
+SQLServerResultSet:8
+Query took: 45 milliseconds. 
+
+TestTreeTableManager.selectMatricesWithIndexedColumnApproximate(String, String):HazelTreeView for:131072
+	select child.*
+	from HazelTreeView child, HazelTreeView node 
+	-- approximate for indexing
+	where child.lower
+	between node.lower and node.upper
+	-- predicate uniquely identifying a node 
+	and node.name = '131072';
+SQLServerResultSet:9
+Query took: 37 milliseconds. 
+
+
+ ----- Tree ----- 
+
+Queried Tree for name:131072
+131072.65536.32768.16384
+131072.65536.32768.16384.8192.4096.2048
+131072.65536.32768.16384.8192.4096.2048.2
+131072.65536.32768.16384.8192.4096.2048.1024.512.256.128.64.2
+131072.65536.32768.16384.8192.4096.2048.1024.512.256.128.64.32.16.8
+131072.65536.32768.16384.8192.4096.2048.1024.2
+131072.65536.32768.16384.8192.4096.2048.1024.512.256.128.64.32.2
+131072.65536.32768.16384.8192.4096.2048.1024.512.256.2
+131072.65536.32768.16384.8192.2
+131072.65536.32768.16384.8192.4096.2048.1024
+131072.65536.32768.16384.2
+131072.65536.32768.16384.8192
+131072.65536.32768
+131072.65536.32768.16384.8192.4096.2048.1024.512
+131072.65536.32768.16384.8192.4096.2048.1024.512.2
+131072
+131072.65536.32768.16384.8192.4096.2048.1024.512.256
+131072.65536.32768.16384.8192.4096.2048.1024.512.256.128.64.32.16.2
+131072.65536.2
+131072.65536.32768.16384.8192.4096.2048.1024.512.256.128.2
+131072.65536.32768.16384.8192.4096.2048.1024.512.256.128.64
+131072.65536.32768.16384.8192.4096.2048.1024.512.256.128.64.32.16
+131072.65536.32768.16384.8192.4096.2048.1024.512.256.128.64.32.16.8.2
+131072.65536.32768.16384.8192.4096
+131072.65536.32768.16384.8192.4096.2048.1024.512.256.128.64.32.16.8.4
+131072.65536.32768.2
+131072.65536.32768.16384.8192.4096.2048.1024.512.256.128
+131072.65536.32768.16384.8192.4096.2048.1024.512.256.128.64.32.16.8.4.2a
+131072.2
+131072.65536
+131072.65536.32768.16384.8192.4096.2
+131072.65536.32768.16384.8192.4096.2048.1024.512.256.128.64.32
+131072.65536.32768.16384.8192.4096.2048.1024.512.256.128.64.32.16.8.4.2
+
+ ----- Selection Statistics ----- 
+
+selectCteRecursive: 66299 MILLISECONDS
+selectMatrices: 5515 MILLISECONDS
+selectMatricesWithIndexedColumn: 45 MILLISECONDS
+selectMatricesWithIndexedColumnApproximate: 37 MILLISECONDS
+Table Rows: 13359642 rows
+Maximum Depth: 17

@@ -51,10 +51,10 @@ public class TestTreeTableManager {
 		}
 	}
 
-	public static void createComputedColumns(String table) throws SQLException {
+	public static void createMatrixComputedColumns(String table) throws SQLException {
 		System.out.println("TestTreeTableManager.createBoundIndexesForTestTable:" + table);
-		String query = "	alter table " + table + " add lower_bound as e11*1.0/e21 persisted;"//
-				+ "	alter table " + table + " add upper_bound as e12*1.0/e22 persisted;";
+		String query = "	alter table " + table + " add lower as e11*1.0/e21 persisted;"//
+				+ "	alter table " + table + " add upper as e12*1.0/e22 persisted;";
 		System.out.println(query);
 		try (Connection connection = DriverManager.getConnection(url); Statement s = connection.createStatement();) {
 			Stopwatch stopwatch = Stopwatch.createStarted();
@@ -64,21 +64,64 @@ public class TestTreeTableManager {
 		}
 	}
 
-	public static void createBoundIndexesForTestTable(String table) throws SQLException {
-		System.out.println("TestTreeTableManager.createBoundIndexesForTestTable:" + table);
-		String query = "	create nonclustered index idx_" + table.toLowerCase() + "_lower on " + table
-				+ " (lower_bound asc);"//
-				+ "	create nonclustered index idx_" + table.toLowerCase() + "_upper on " + table
-				+ " (upper_bound asc);";
+	public static void createMatrixComputedIndexesForTestTable(String table) throws SQLException {
+		System.out.println("TestTreeTableManager.createMatrixComputedIndexesForTestTable:" + table);
+		String query = String.format(
+				"	create nonclustered index idx_%2$s_lower on %1$s ( lower asc);\r\n"
+						+ "	create nonclustered index idx_%2$s_upper on %1$s ( upper asc);",
+				table, table.toLowerCase());
+		execute(query);
+	}
+
+	public static void createMatrixElementIndexesForTestTable(String table) throws SQLException {
+		System.out.println("TestTreeTableManager.createMatrixComputedIndexesForTestTable:" + table);
+		String query = String.format("	create nonclustered index idx_%2$s_e11 on %1$s ( e11 asc);\r\n" + //
+				"	create nonclustered index idx_%2$s_e12 on %1$s ( e12 asc);\r\n" + //
+				"	create nonclustered index idx_%2$s_e21 on %1$s ( e21 asc);\r\n" + //
+				"	create nonclustered index idx_%2$s_e22 on %1$s ( e22 asc);", table, table.toLowerCase());
+		execute(query);
+	}
+
+	public static void createNameIndexesForTestTable(String table) throws SQLException {
+		System.out.println("TestTreeTableManager.createNameIndexesForTestTable:" + table);
+		String query = String.format(
+				"	create nonclustered index idx_%2$s_name on %1$s ( name asc);\r\n"
+						+ "	create nonclustered index idx_%2$s_parent on %1$s ( parent asc);",
+				table, table.toLowerCase());
+		execute(query);
+	}
+
+	public static void dropAllIndexes(String table) throws SQLException {
+		System.out.println("TestTreeTableManager.dropBoundIndexes:" + table);
+		String query = String.format(//
+				"	drop index if exists idx_%2$s_lower on dbo.%1$s;\r\n" + //
+						"	drop index if exists idx_%2$s_upper on dbo.%1$s;\r\n" + //
+						"	drop index if exists idx_%2$s_left on dbo.%1$s;\r\n" + //
+						"	drop index if exists idx_%2$s_right on dbo.%1$s;\r\n" + //
+						"	drop index if exists idx_%2$s_e11 on dbo.%1$s;\r\n" + //
+						"	drop index if exists idx_%2$s_e12 on dbo.%1$s;\r\n" + //
+						"	drop index if exists idx_%2$s_e21 on dbo.%1$s;\r\n" + //
+						"	drop index if exists idx_%2$s_e22 on dbo.%1$s;",
+				table, table.toLowerCase());
+		System.out.println(query);
+		try (Connection connection = DriverManager.getConnection(url); Statement s = connection.createStatement();) {
+			s.execute(query);
+		}
+	}
+
+	public static void execute(String query) throws SQLException {
 		System.out.println(query);
 		try (Connection connection = DriverManager.getConnection(url); Statement s = connection.createStatement();) {
 			Stopwatch stopwatch = Stopwatch.createStarted();
 			s.execute(query);//
-			System.out.println(
-					"createBoundIndexesForTestTable() took " + stopwatch.elapsed(TimeUnit.MILLISECONDS) + " ms");
+			System.out.println("Query took: " + stopwatch.elapsed(TimeUnit.MILLISECONDS) + " ms");
 		}
 	}
 
+	/*
+	 * create nonclustered index idx_hazeltree_name on HazelTree ( name asc); create
+	 * nonclustered index idx_hazeltree_parent on HazelTree ( parent asc);
+	 */
 	public static QueryResult selectCteRecursive(String table, String name) throws SQLException {
 		System.out.println("TestTreeTableManager.selectCteRecursive:" + table + " for:" + name);
 		String query = String.format("	with _CTE (name, parent, number, e11, e21, e12, e22, depth)\r\n"
@@ -90,7 +133,9 @@ public class TestTreeTableManager {
 				+ "	select name, number, depth \r\n" //
 				+ "	from _CTE \r\n" + "	option(MAXRECURSION 50);", table, name);
 		System.out.println(query);
-		return queryNames(query);
+		QueryResult result = queryNames(query);
+		result.method = "selectCteRecursive";
+		return result;
 	}
 
 	public static QueryResult selectMatrices(String table, String name) throws SQLException {
@@ -100,36 +145,48 @@ public class TestTreeTableManager {
 				+ "	and child.e12*node.e22 <= node.e12*child.e22 \r\n"
 				+ "	and node.name = '%2$s'  -- predicate uniquely identifying a node ", table, name);
 		System.out.println(query);
-		return queryNames(query);
+		QueryResult result = queryNames(query);
+		result.method = "selectMatrices";
+		return result;
+	}
+
+	public static QueryResult selectMatricesWithIndexedColumnApproximate(String table, String name)
+			throws SQLException {
+		System.out.println("TestTreeTableManager.selectMatricesWithIndexedColumnApproximate(String, String):" + table
+				+ " for:" + name);
+		String query = String.format("	select child.*\r\n" //
+				+ "	from %1$s child, %1$s node \r\n" //
+				+ "	-- approximate for indexing\r\n"//
+				+ "	where child.lower\r\n" //
+				+ "	between node.lower and node.upper\r\n"//
+				+ "	-- predicate uniquely identifying a node \r\n" //
+				+ "	and node.name = '%2$s';", table, name);
+		System.out.println(query);
+		QueryResult result = queryNames(query);
+		result.method = "selectMatricesWithIndexedColumnApproximate";
+		return result;
 	}
 
 	public static QueryResult selectMatricesWithIndexedColumn(String table, String name) throws SQLException {
 		System.out.println(
 				"TestTreeTableManager.selectMatricesWithIndexedColumn(String, String):" + table + " for:" + name);
-		String query = String.format(
-				"	select child.*\r\n" + "	from %1$s child, %1$s node \r\n" + "	-- approximate for indexing\r\n"
-						+ "	where child.lower_bound\r\n" + "	between node.lower_bound and node.upper_bound\r\n"
-						+ "	-- exact\r\n" + "	and node.e11*child.e21 <= child.e11*node.e21 \r\n"
-						+ "	and child.e12*node.e22 <= node.e12*child.e22 \r\n"
-						+ "	-- predicate uniquely identifying a node \r\n" + "	and node.name = '%2$s';",
-				table, name);
+		String query = String.format("	select child.*\r\n" //
+				+ "	from %1$s child, %1$s node \r\n" //
+				+ "	-- approximate for indexing\r\n"//
+				+ "	where child.lower\r\n" //
+				+ "	between node.lower and node.upper\r\n"//
+				+ "	-- exact\r\n" //
+				+ "	and node.e11*child.e21 <= child.e11*node.e21 \r\n"//
+				+ "	and child.e12*node.e22 <= node.e12*child.e22 \r\n"//
+				+ "	-- predicate uniquely identifying a node \r\n" //
+				+ "	and node.name = '%2$s';", table, name);
 		System.out.println(query);
-		return queryNames(query);
+		QueryResult result = queryNames(query);
+		result.method = "selectMatricesWithIndexedColumn";
+		return result;
 	}
 
-	public static QueryResult selectMatricesWithPrefilter(String table, String name) throws SQLException {
-		System.out.println("TestTreeTableManager.selectMatricesWithPrefilter:" + table + " for:" + name);
-		String query = String
-				.format("	select child.*\r\n" + "	from %1$s child, %1$s node \r\n" + "	-- approximate \r\n"
-						+ "	where child.e11/child.e21  \r\n" + "	between node.e11/node.e21 and node.e12/node.e22\r\n"
-						+ "	-- exact\r\n" + "	and node.e11*child.e21 <= child.e11*node.e21 \r\n"
-						+ "	and child.e12*node.e22 <= node.e12*child.e22 \r\n"
-						+ "	-- predicate uniquely identifying a node \r\n" + "	and node.name = '%2$s';", table, name);
-		System.out.println(query);
-		return queryNames(query);
-	}
-
-	public static QueryResult queryNames(String query) throws SQLException {
+	public static QueryResult queryNames(String query) {
 		Stopwatch stopwatch = Stopwatch.createStarted();
 
 		QueryResult qr = new QueryResult();
@@ -140,6 +197,8 @@ public class TestTreeTableManager {
 			for (result.first(); !result.isAfterLast(); result.next()) {
 				qr.names.add(result.getObject("name").toString());
 			}
+		} catch (SQLException e) {
+			qr.errorMessage = e.getLocalizedMessage();
 		}
 		qr.unit = TimeUnit.MILLISECONDS;
 		qr.duration = stopwatch.elapsed(qr.unit);
@@ -151,16 +210,6 @@ public class TestTreeTableManager {
 	public static void dropTable(String table) throws SQLException {
 		System.out.println("TestTreeTableManager.dropTable:" + table);
 		String query = "	drop table if exists dbo." + table;
-		System.out.println(query);
-		try (Connection connection = DriverManager.getConnection(url); Statement s = connection.createStatement();) {
-			s.execute(query);
-		}
-	}
-
-	public static void dropBoundIndexes(String table) throws SQLException {
-		System.out.println("TestTreeTableManager.dropBoundIndexes:" + table);
-		String query = "	drop index if exists idx_" + table.toLowerCase() + "_lower on dbo." + table + ";\n"//
-				+ "	drop index if exists idx_" + table.toLowerCase() + "_upper on dbo." + table + ";";
 		System.out.println(query);
 		try (Connection connection = DriverManager.getConnection(url); Statement s = connection.createStatement();) {
 			s.execute(query);
@@ -181,7 +230,7 @@ public class TestTreeTableManager {
 		System.out.println("TestTreeTableManager.generateAndInsertBinaryTrees(" + table + ", " + max + ")");
 		Precondition.checkArgument(max > 1, "n must be greater than 1");
 		Precondition.checkArgument(min > 1, "min must be greater than 1");
-		Precondition.checkArgument(max < 8000000, "n must be less than 8000000");
+		Precondition.checkArgument(max <= 8000000, "n must be less than 8000000");
 
 		// replace user and pass
 		try (Connection connection = DriverManager.getConnection(url);) {
@@ -193,18 +242,16 @@ public class TestTreeTableManager {
 
 			// first batch from 3 -> delta
 			final int delta = 500000;
-			if (max < min + delta)
-				set = PrimeTreeBuilder.buildBinariesAsSet(min, max);
-			else
-				set = PrimeTreeBuilder.buildBinariesAsSet(min, delta);
+			int firstStep = Math.min(min + delta, max);
+			set = PrimeTreeBuilder.buildPrimeBinaryTreesAsSet(min, firstStep);
 			bulkInsert(connection, table, set.iterator(), mapping);
 
 			// next batches
-			for (int i = delta; i < max; i += delta) {
+			for (int i = firstStep; i < max; i += delta) {
 				if (max >= i + delta)
-					set = PrimeTreeBuilder.buildBinariesAsSet(i, i + delta);
+					set = PrimeTreeBuilder.buildPrimeBinaryTreesAsSet(i, i + delta);
 				else
-					set = PrimeTreeBuilder.buildBinariesAsSet(i, max);
+					set = PrimeTreeBuilder.buildPrimeBinaryTreesAsSet(i, max);
 				bulkInsert(connection, table, set.iterator(), mapping);
 
 				// hint for gc to start cleaning
@@ -213,7 +260,8 @@ public class TestTreeTableManager {
 
 			int updatedRowQuantity = getRowCount(connection, table);
 			int change = updatedRowQuantity - currentRowQuantity;
-			System.out.println("added " + change + " rows with total: " + updatedRowQuantity);
+			System.out.println("TestTreeTableManager.generateAndInsertBinaryTrees() added " + change
+					+ " rows with total: " + updatedRowQuantity);
 		}
 		// Handle any errors that may have occurred.
 		catch (SQLException e) {
@@ -237,16 +285,16 @@ public class TestTreeTableManager {
 			// 1 mil table ~ 6 mil insert ~ 72 sec
 			SQLServerBulkCopyOptions option = new SQLServerBulkCopyOptions();
 			option.setBulkCopyTimeout(240);
-
 			sqlServerBulkCopy.setBulkCopyOptions(option);
 			sqlServerBulkCopy.setDestinationTableName(mapping.getTableDefinition().GetFullQualifiedTableName());
 			ISQLServerBulkData record = new SqlServerBulkData<E>(mapping.getColumns(), entities);
 			sqlServerBulkCopy.writeToServer(record);
 		} catch (SQLServerException e) {
-			System.out.println("bulkInsert() error:" + e.getLocalizedMessage());
+			System.out.println("TestTreeTableManager.bulkInsert() error:" + e.getLocalizedMessage());
 			throw new RuntimeException(e);
 		} finally {
-			System.out.println("bulkInsert() took " + sqlInsertStopwatch.elapsed(TimeUnit.MILLISECONDS) + " ms");
+			System.out.println("TestTreeTableManager.bulkInsert() took "
+					+ sqlInsertStopwatch.elapsed(TimeUnit.MILLISECONDS) + " ms");
 		}
 
 	}
@@ -294,11 +342,22 @@ public class TestTreeTableManager {
 			return r.getInt("total");
 		}
 	}
-	
+
 	public static int getRowCount(String table) throws SQLException {
 		System.out.println("TestTreeTableManager.getRowCount(" + table + ")");
 		try (Connection connection = DriverManager.getConnection(url);) {
 			return getRowCount(connection, table);
+		}
+	}
+
+	// select max(upper) as trees from HazelTreeView;
+	public static int getTrees(String tableView) throws SQLException {
+		System.out.println("TestTreeTableManager.getRowCount(" + tableView + ")");
+		try (Connection connection = DriverManager.getConnection(url);
+				Statement s = connection.createStatement();
+				ResultSet r = s.executeQuery("select max(upper) as totalTrees from " + tableView);) {
+			r.next();
+			return r.getInt("totalTrees");
 		}
 	}
 }
